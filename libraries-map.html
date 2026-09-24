@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#12372f">
+  <title>Карта модельных библиотек ЛНР</title>
+  <link rel="preconnect" href="https://api-maps.yandex.ru">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Prata&display=swap");
+
+    :root {
+      --ink: #16342d;
+      --paper: #f3efe5;
+      --cream: #fffdf8;
+      --green: #174c40;
+      --mint: #a8d5ba;
+      --lime: #d8e66c;
+      --orange: #e87945;
+      --blue: #6d9fb2;
+      --muted: #6d7772;
+      --line: rgba(22, 52, 45, 0.13);
+      --shadow: 0 24px 70px rgba(23, 76, 64, 0.13);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      color: var(--ink);
+      background: var(--paper);
+      font-family: "Manrope", Arial, sans-serif;
+      overflow-x: hidden;
+    }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .topbar {
+      position: relative;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 0 28px;
+      color: #fff;
+      background: var(--green);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 50%;
+      font-family: "Prata", Georgia, serif;
+      font-size: 22px;
+    }
+    .brand strong { display: block; font-size: 14px; letter-spacing: .04em; }
+    .brand span { display: block; margin-top: 2px; color: rgba(255,255,255,.65); font-size: 10px; }
+    .source-link {
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.45);
+    }
+    .top-actions { display: flex; align-items: center; gap: 14px; }
+    .manage-button {
+      padding: 10px 15px;
+      border: 1px solid rgba(255,255,255,.4);
+      border-radius: 999px;
+      color: var(--green);
+      background: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .manage-button.active { color: #fff; border-color: var(--lime); background: transparent; }
+    .manage-button .short-label { display: none; }
+    .mobile-admin-toggle { display: none; }
+    body.admin-mode #admin-toggle { display: none; }
+    body.admin-mode .mobile-admin-toggle { display: none; }
+    .admin-strip {
+      min-height: 46px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 28px;
+      color: #fff;
+      background: #0d2923;
+      border-top: 1px solid rgba(255,255,255,.12);
+    }
+    body.admin-mode .admin-strip { display: flex; }
+    .admin-strip-info { display: flex; align-items: center; gap: 11px; min-width: 0; font-size: 10px; }
+    .admin-mode-badge { padding: 6px 9px; border-radius: 999px; color: var(--green); background: var(--lime); font-size: 8px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .admin-strip-info span:last-child { overflow: hidden; color: rgba(255,255,255,.7); white-space: nowrap; text-overflow: ellipsis; }
+    .admin-strip-actions { display: flex; gap: 7px; }
+    .admin-strip-button { padding: 7px 10px; border: 1px solid rgba(255,255,255,.28); border-radius: 8px; color: #fff; background: transparent; font-size: 9px; font-weight: 800; cursor: pointer; }
+    .admin-strip-button.primary { color: var(--green); border-color: #fff; background: #fff; }
+    body.admin-mode .workspace { height: calc(100vh - 320px); }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 32px;
+      align-items: end;
+      padding: 38px 40px 34px;
+      overflow: hidden;
+      background: var(--paper);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      right: 13%;
+      top: -240px;
+      border: 70px solid rgba(168, 213, 186, .32);
+      border-radius: 50%;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 12px;
+      color: var(--orange);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 30px; height: 2px; background: currentColor; }
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-family: "Prata", Georgia, serif;
+      font-size: clamp(36px, 5vw, 70px);
+      font-weight: 400;
+      letter-spacing: -.045em;
+      line-height: .98;
+    }
+    .intro {
+      max-width: 700px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .hero-stats { display: flex; gap: 10px; position: relative; z-index: 1; }
+    .stat {
+      min-width: 112px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,253,248,.72);
+    }
+    .stat strong { display: block; font-family: "Prata", Georgia, serif; font-size: 30px; font-weight: 400; }
+    .stat span { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+
+    .workspace {
+      height: calc(100vh - 274px);
+      min-height: 590px;
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      margin: 0 24px 24px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: var(--cream);
+      box-shadow: var(--shadow);
+    }
+    .sidebar { display: flex; min-height: 0; flex-direction: column; border-right: 1px solid var(--line); }
+    .tools { padding: 18px; border-bottom: 1px solid var(--line); }
+    .institution-tabs { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 5px; margin-bottom: 12px; padding: 4px; border-radius: 13px; background: #e9ece4; }
+    .type-tab { padding: 9px 6px; border: 0; border-radius: 10px; color: var(--muted); background: transparent; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .type-tab.active { color: #fff; background: var(--green); box-shadow: 0 4px 12px rgba(23, 76, 64, .18); }
+    .search-wrap { position: relative; }
+    .search-wrap svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #71817b; }
+    #search {
+      width: 100%;
+      height: 44px;
+      padding: 0 14px 0 43px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      outline: 0;
+      color: var(--ink);
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    #search:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,76,64,.1); }
+    .filters { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .filter {
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .filter.active { color: #fff; border-color: var(--green); background: var(--green); }
+    .discovery-tools { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .discovery-button { padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: var(--green); background: #fff; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .discovery-button:hover, .discovery-button.active { color: #fff; border-color: var(--green); background: var(--green); }
+    .discovery-button:disabled { opacity: .45; cursor: not-allowed; }
+    .result-count { margin: 13px 2px 0; color: var(--muted); font-size: 10px; }
+    .dataset-note { margin: 8px 2px 0; color: #89928e; font-size: 9px; line-height: 1.45; }
+    .program-summary { display: grid; gap: 6px; margin-top: 13px; }
+    .program-summary[hidden] { display: none; }
+    .program-year {
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr);
+      gap: 8px;
+      padding: 8px 9px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(255,255,255,.55);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+    .program-year strong { color: var(--green); font-size: 10px; }
+    .program-year a { color: inherit; text-decoration-color: rgba(23,76,64,.35); text-underline-offset: 2px; }
+    .library-list { min-height: 0; flex: 1; overflow-y: auto; scrollbar-width: thin; }
+    .card-row { position: relative; border-bottom: 1px solid var(--line); }
+    .library-card {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 13px;
+      width: 100%;
+      padding: 14px 45px 14px 16px;
+      border: 0;
+      color: inherit;
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      transition: background .18s;
+    }
+    .library-card:hover, .library-card.active { background: #edf2e9; }
+    .favorite-button { position: absolute; top: 14px; right: 10px; width: 31px; height: 31px; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--muted); background: #fff; font-size: 19px; line-height: 1; cursor: pointer; }
+    .favorite-button.active { color: #b66525; border-color: #e8c7a5; background: #fff2df; }
+    .favorite-button:focus-visible, .discovery-button:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+    .card-photo { width: 92px; height: 82px; border-radius: 12px; object-fit: cover; background: #dfe5dc; }
+    .card-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: .07em; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); }
+    .dot.progress { background: var(--blue); }
+    .dot.planned { background: #9d7bc1; }
+    .dot.renovated { background: #c38a32; }
+    .dot.equipped { background: var(--blue); }
+    .dot.repaired { background: #c38a32; }
+    .dot.museum-both { background: var(--green); }
+    .dot.winner { background: #9d7bc1; }
+    .dot.active { background: var(--green); }
+    .library-card h3 { margin: 0; font-size: 13px; line-height: 1.3; }
+    .library-card p { margin: 6px 0 0; overflow: hidden; color: var(--muted); font-size: 10px; white-space: nowrap; text-overflow: ellipsis; }
+
+    .map-wrap { position: relative; width: 100%; height: 100%; min-width: 0; min-height: 0; }
+    #map { position: relative; width: 100%; height: 100%; background: #dce5df; }
+    .map-note {
+      position: absolute;
+      z-index: 500;
+      left: 18px;
+      bottom: 18px;
+      max-width: 280px;
+      padding: 10px 13px;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 12px;
+      color: #4e5c57;
+      background: rgba(255,253,248,.9);
+      box-shadow: 0 8px 25px rgba(22,52,45,.12);
+      backdrop-filter: blur(8px);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+    .map-legend {
+      position: absolute;
+      z-index: 500;
+      top: 18px;
+      left: 60px;
+      min-width: 150px;
+      padding: 12px 14px;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 12px;
+      color: #4e5c57;
+      background: rgba(255,253,248,.92);
+      box-shadow: 0 8px 25px rgba(22,52,45,.12);
+      backdrop-filter: blur(8px);
+      font-size: 10px;
+    }
+    .map-legend strong { display: block; margin-bottom: 9px; color: var(--ink); font-size: 11px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+    .legend-dot { width: 10px; height: 10px; flex: 0 0 auto; border: 2px solid #fff; border-radius: 50%; background: var(--orange); box-shadow: 0 1px 4px rgba(22,52,45,.25); }
+    .legend-dot.progress { background: var(--blue); }
+    .legend-dot.planned { background: #9d7bc1; }
+    .legend-dot.renovated { background: #c38a32; }
+    .legend-dot.equipped { background: var(--blue); }
+    .legend-dot.repaired { background: #c38a32; }
+    .legend-dot.museum-both { background: var(--green); }
+    .legend-dot.winner { background: #9d7bc1; }
+    .legend-dot.active { background: var(--green); }
+    .map-reset {
+      position: absolute;
+      z-index: 500;
+      top: 18px;
+      right: 60px;
+      padding: 9px 13px;
+      border: 0;
+      border-radius: 8px;
+      color: var(--ink);
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(22,52,45,.2);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .popup-photo { width: 100%; height: 105px; display: block; object-fit: cover; }
+    .popup-body { padding: 13px; }
+    .popup-body small { color: var(--orange); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+    .popup-body h3 { margin: 5px 0 10px; font-size: 13px; line-height: 1.35; }
+    .popup-button { width: 100%; padding: 9px; border: 0; border-radius: 9px; color: #fff; background: var(--green); font-size: 10px; font-weight: 800; cursor: pointer; }
+
+    .modal {
+      position: fixed;
+      z-index: 2000;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      background: rgba(10, 29, 25, .68);
+      backdrop-filter: blur(9px);
+      transition: opacity .2s;
+    }
+    .modal.open { opacity: 1; pointer-events: auto; }
+    .modal-panel {
+      width: min(100%, 1050px);
+      height: min(90vh, 760px);
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      overflow: hidden;
+      border-radius: 24px;
+      background: var(--cream);
+      box-shadow: 0 28px 100px rgba(0,0,0,.3);
+      transform: translateY(15px);
+      transition: transform .25s;
+    }
+    .modal.open .modal-panel { transform: none; }
+    .media-pane { position: relative; min-height: 520px; overflow: hidden; background: #102b24; }
+    .main-photo { width: 100%; height: 100%; display: block; object-fit: cover; transition: opacity .25s, transform 4s linear; }
+    .media-pane.playing .main-photo { transform: scale(1.08); }
+    .photo-shade { position: absolute; inset: auto 0 0; height: 45%; pointer-events: none; background: linear-gradient(transparent, rgba(10,29,25,.72)); }
+    .media-caption { position: absolute; left: 24px; right: 24px; bottom: 22px; color: #fff; }
+    .media-caption strong { display: block; margin-bottom: 4px; font-size: 14px; }
+    .media-caption span { color: rgba(255,255,255,.7); font-size: 10px; }
+    .play-button {
+      position: absolute;
+      left: 24px;
+      top: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid rgba(255,255,255,.45);
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(10,29,25,.52);
+      backdrop-filter: blur(8px);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .tour-progress { position: absolute; left: 24px; right: 24px; top: 75px; display: flex; gap: 4px; }
+    .tour-progress span { height: 3px; flex: 1; border-radius: 4px; background: rgba(255,255,255,.35); overflow: hidden; }
+    .tour-progress i { display: block; width: 0; height: 100%; background: #fff; }
+    .tour-progress span.done i { width: 100%; }
+    .tour-progress span.current i { animation: progress 4s linear forwards; }
+    @keyframes progress { to { width: 100%; } }
+    .modal-content {
+      min-height: 0;
+      overflow-y: scroll;
+      padding: 34px;
+      scrollbar-color: var(--orange) rgba(22, 52, 45, .08);
+      scrollbar-width: auto;
+      scrollbar-gutter: stable;
+    }
+    .modal-content::-webkit-scrollbar, .modal-panel::-webkit-scrollbar { width: 10px; }
+    .modal-content::-webkit-scrollbar-track, .modal-panel::-webkit-scrollbar-track { background: rgba(22, 52, 45, .08); }
+    .modal-content::-webkit-scrollbar-thumb, .modal-panel::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 999px; background: var(--orange); background-clip: padding-box; }
+    .modal-content::-webkit-scrollbar-thumb:hover, .modal-panel::-webkit-scrollbar-thumb:hover { background-color: #ce6033; }
+    .modal-close {
+      float: right;
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--ink);
+      background: transparent;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 3px;
+      color: var(--orange);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .modal-content h2 { margin: 16px 0 8px; font-family: "Prata", Georgia, serif; font-size: clamp(25px, 3vw, 38px); font-weight: 400; line-height: 1.1; }
+    .location { display: flex; gap: 7px; align-items: center; color: var(--muted); font-size: 11px; }
+    .description { margin: 22px 0; color: #52625d; font-size: 12px; line-height: 1.7; }
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 22px; }
+    .detail { min-width: 0; padding: 11px 12px; border: 1px solid var(--line); border-radius: 12px; background: #f7f5ee; }
+    .detail dt { margin: 0 0 5px; color: #89928e; font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .detail dd { margin: 0; color: var(--ink); font-size: 10px; line-height: 1.45; overflow-wrap: anywhere; }
+    .features { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+    .features span { padding: 7px 10px; border-radius: 999px; color: var(--green); background: #e9f0e6; font-size: 9px; font-weight: 700; }
+    .gallery-title { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .thumbnails { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .thumbnail { height: 76px; padding: 0; overflow: hidden; border: 2px solid transparent; border-radius: 10px; background: #dfe5dc; cursor: pointer; }
+    .thumbnail.active { border-color: var(--orange); }
+    .thumbnail img { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .source-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 0;
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .source-button:hover { background: #edf2e9; }
+    .article-links { display: grid; gap: 8px; margin-top: 24px; }
+    .source-note { margin: 12px 0 0; color: #89928e; font-size: 9px; line-height: 1.5; }
+    .record-actions { display: none; gap: 8px; margin-top: 22px; }
+    body.admin-mode .record-actions { display: flex; }
+    .record-action { flex: 1; padding: 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: transparent; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .record-action:hover { background: #edf2e9; }
+    .record-action.danger { color: #a33b2f; }
+    .empty { padding: 45px 25px; color: var(--muted); text-align: center; font-size: 12px; }
+
+    .editor-modal { z-index: 3000; }
+    .editor-panel { width: min(100%, 720px); max-height: min(92vh, 820px); overflow-y: auto; padding: 30px; border-radius: 24px; background: var(--cream); box-shadow: 0 28px 100px rgba(0,0,0,.3); transform: translateY(15px); transition: transform .25s; }
+    .editor-modal.open .editor-panel { transform: none; }
+    .editor-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .editor-head h2 { margin: 0; font-family: "Prata", Georgia, serif; font-size: 30px; font-weight: 400; }
+    .editor-head p { margin: 7px 0 0; color: var(--muted); font-size: 11px; }
+    .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: grid; gap: 6px; }
+    .field.wide { grid-column: 1 / -1; }
+    .field label { color: #71817b; font-size: 9px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; outline: 0; color: var(--ink); background: #fff; font-size: 12px; }
+    .field textarea { min-height: 88px; resize: vertical; line-height: 1.5; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(23,76,64,.1); }
+    .editor-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .editor-action { padding: 11px 15px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: transparent; font-size: 10px; font-weight: 800; cursor: pointer; }
+    .editor-action.primary { margin-left: auto; color: #fff; border-color: var(--green); background: var(--green); }
+    .editor-action.danger { color: #a33b2f; border-color: rgba(163,59,47,.28); }
+    .admin-modal { z-index: 2800; }
+    .admin-panel { width: min(100%, 1040px); max-height: min(92vh, 860px); overflow-y: auto; padding: 30px; border-radius: 24px; background: var(--cream); box-shadow: 0 28px 100px rgba(0,0,0,.3); transform: translateY(15px); transition: transform .25s; }
+    .admin-modal.open .admin-panel { transform: none; }
+    .admin-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 22px 0; }
+    .admin-summary div { padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: #f7f5ee; }
+    .admin-summary strong { display: block; font-family: "Prata", Georgia, serif; font-size: 25px; font-weight: 400; }
+    .admin-summary span { color: var(--muted); font-size: 9px; line-height: 1.3; }
+    .admin-note { margin: 0; padding: 13px 15px; border-radius: 12px; color: #52625d; background: #edf2e9; font-size: 10px; line-height: 1.55; }
+    .admin-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 18px; }
+    .admin-actions .editor-action { text-align: center; }
+    .admin-actions .primary { margin: 0; }
+    .admin-catalog { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .admin-catalog-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin-bottom: 13px; }
+    .admin-catalog-head h3 { margin: 0; font-family: "Prata", Georgia, serif; font-size: 23px; font-weight: 400; }
+    .admin-catalog-head p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+    .admin-filters { display: grid; grid-template-columns: minmax(200px, 1fr) 190px; gap: 8px; min-width: min(100%, 440px); }
+    .admin-filters input, .admin-filters select { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; font-size: 11px; }
+    .admin-list { overflow: hidden; border: 1px solid var(--line); border-radius: 14px; }
+    .admin-row { display: grid; grid-template-columns: minmax(220px, 1.7fr) 120px 90px 205px; gap: 12px; align-items: center; padding: 11px 13px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.55); }
+    .admin-row:last-child { border-bottom: 0; }
+    .admin-row:hover { background: #edf2e9; }
+    .admin-object { min-width: 0; }
+    .admin-object strong { display: block; overflow: hidden; font-size: 11px; white-space: nowrap; text-overflow: ellipsis; }
+    .admin-object span { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font-size: 9px; white-space: nowrap; text-overflow: ellipsis; }
+    .admin-badge { justify-self: start; padding: 5px 8px; border-radius: 999px; color: var(--green); background: #e9f0e6; font-size: 8px; font-weight: 800; text-transform: uppercase; }
+    .admin-badge.changed { color: #7c4e12; background: #f5ead6; }
+    .admin-year { color: var(--muted); font-size: 10px; }
+    .admin-row-actions { display: flex; justify-content: flex-end; gap: 5px; }
+    .admin-mini { padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: #fff; font-size: 8px; font-weight: 800; cursor: pointer; }
+    .admin-mini:hover { border-color: var(--green); }
+    .admin-mini.danger { color: #a33b2f; }
+    .admin-empty { padding: 32px; color: var(--muted); text-align: center; font-size: 11px; }
+    .category-manager { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--line); }
+    .category-manager h3 { margin: 0 0 5px; font-family: "Prata", Georgia, serif; font-size: 23px; font-weight: 400; }
+    .category-manager > p { margin: 0 0 13px; color: var(--muted); font-size: 10px; }
+    .category-form { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+    .category-form input { min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; outline: 0; color: var(--ink); background: #fff; font-size: 11px; }
+    .category-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .category-item { display: flex; align-items: center; gap: 7px; padding: 7px 8px 7px 11px; border: 1px solid var(--line); border-radius: 999px; background: #f7f5ee; font-size: 9px; font-weight: 700; }
+    .category-item.system { color: var(--muted); }
+    .category-delete { width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; color: #a33b2f; background: #fff; cursor: pointer; }
+    .file-input { display: none; }
+    .placement-hint { position: fixed; z-index: 2500; left: 50%; top: 92px; display: none; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 999px; color: #fff; background: var(--green); box-shadow: var(--shadow); transform: translateX(-50%); font-size: 11px; font-weight: 700; }
+    .placement-hint.show { display: flex; }
+    .placement-hint button { padding: 5px 9px; border: 0; border-radius: 999px; color: var(--ink); background: #fff; font-size: 9px; font-weight: 800; cursor: pointer; }
+    .toast { position: fixed; z-index: 4000; right: 22px; bottom: 22px; max-width: 340px; padding: 13px 16px; border-radius: 12px; color: #fff; background: var(--green); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transform: translateY(10px); transition: .2s; font-size: 11px; }
+    .toast.show { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding: 30px 24px; }
+      .hero-stats { justify-content: flex-start; }
+      .workspace { height: 760px; min-height: 0; grid-template-columns: 310px minmax(0, 1fr); margin: 0 12px 12px; }
+      .modal-panel { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px) {
+      .topbar { height: 64px; padding: 0 16px; }
+      .brand { width: 100%; max-width: none; overflow: visible; }
+      .brand span, .source-link { display: none; }
+      .brand strong { font-size: 12px; }
+      .top-actions { display: none; }
+      .manage-button { padding: 9px 11px; }
+      .manage-button .full-label { display: none; }
+      .manage-button .short-label { display: inline; }
+      .mobile-admin-toggle { position: absolute; top: 14px; left: 220px; display: block; padding: 9px 11px; border: 1px solid rgba(255,255,255,.4); border-radius: 999px; color: var(--green); background: #fff; font-size: 10px; font-weight: 800; cursor: pointer; }
+      .admin-strip { min-height: 82px; flex-wrap: wrap; gap: 7px; padding: 8px 12px; }
+      .admin-strip-info { width: 100%; }
+      .admin-strip-info span:last-child { display: none; }
+      .admin-strip-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+      .admin-strip-button { padding: 7px 8px; }
+      .hero { min-width: 0; padding: 24px 18px; }
+      .hero > div { min-width: 0; }
+      h1 { max-width: 100%; word-break: break-word; overflow-wrap: anywhere; font-size: clamp(32px, 10vw, 38px); }
+      .intro { font-size: 12px; }
+      .hero-stats { width: 100%; min-width: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .stat { min-width: 0; padding: 12px 10px; overflow: hidden; }
+      .stat strong { font-size: 24px; }
+      .stat span { font-size: 8px; letter-spacing: .05em; overflow-wrap: anywhere; }
+      .workspace { width: calc(100% - 24px); height: auto; display: flex; flex-direction: column-reverse; border-radius: 18px; }
+      body.admin-mode .workspace { height: auto; }
+      .map-wrap { height: 52vh; min-height: 390px; }
+      .sidebar { height: 520px; border: 0; border-top: 1px solid var(--line); }
+      .modal { padding: 0; place-items: end center; }
+      .modal-panel {
+        width: 100%;
+        height: auto;
+        max-height: 94vh;
+        display: block;
+        overflow-y: scroll;
+        border-radius: 22px 22px 0 0;
+        scrollbar-color: var(--orange) rgba(22, 52, 45, .08);
+        scrollbar-width: auto;
+        scrollbar-gutter: stable;
+      }
+      .media-pane { min-height: 330px; height: 42vh; }
+      .modal-content { overflow: visible; padding: 25px 20px 35px; }
+      .details-grid { grid-template-columns: 1fr; }
+      .modal-close { position: absolute; z-index: 5; top: 14px; right: 14px; color: #fff; border-color: rgba(255,255,255,.5); background: rgba(10,29,25,.5); }
+      .editor-modal { padding: 10px; place-items: center; }
+      .editor-panel { padding: 22px 18px; border-radius: 18px; }
+      .admin-modal { padding: 10px; place-items: center; }
+      .admin-panel { padding: 22px 18px; border-radius: 18px; }
+      .admin-summary { grid-template-columns: 1fr; }
+      .admin-actions { grid-template-columns: 1fr; }
+      .admin-catalog-head { align-items: stretch; flex-direction: column; }
+      .admin-filters { min-width: 0; grid-template-columns: 1fr; }
+      .admin-row { grid-template-columns: minmax(0, 1fr) auto; }
+      .admin-row .admin-year { display: none; }
+      .admin-row-actions { grid-column: 1 / -1; justify-content: stretch; }
+      .admin-mini { flex: 1; }
+      .category-form { grid-template-columns: 1fr; }
+      .editor-grid { grid-template-columns: 1fr; }
+      .field.wide { grid-column: auto; }
+      .editor-action.primary { width: 100%; margin-left: 0; }
+      .play-button { top: 16px; left: 16px; }
+      .tour-progress { top: 65px; left: 16px; right: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+    body.embedded-map { margin: 0; overflow: hidden; }
+    body.embedded-map .topbar, body.embedded-map .admin-strip, body.embedded-map .hero,
+    body.embedded-map .sidebar, body.embedded-map .map-note, body.embedded-map .map-legend,
+    body.embedded-map .map-reset { display: none !important; }
+    body.embedded-map .workspace, body.embedded-map.admin-mode .workspace {
+      position: fixed; inset: 0; width: 100%; height: 100%; min-height: 0;
+      display: block; margin: 0; border: 0; border-radius: 0; box-shadow: none;
+    }
+    body.embedded-map .map-wrap { width: 100%; height: 100%; min-height: 0; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">К</div>
+      <div><strong>Культурная карта ЛНР</strong><span>Интерактивный путеводитель по учреждениям</span></div>
+      <button class="mobile-admin-toggle" id="admin-toggle-mobile" type="button">Админ</button>
+    </div>
+    <div class="top-actions">
+      <a class="source-link" href="https://mk.lpr-reg.ru/" target="_blank" rel="noopener">Источники: Минкультуры ЛНР и Луганьмедиа ↗</a>
+      <button class="manage-button" id="admin-toggle" type="button"><span class="full-label">Режим администратора</span><span class="short-label">Админ</span></button>
+    </div>
+  </header>
+  <div class="admin-strip" id="admin-strip" role="status">
+    <div class="admin-strip-info"><span class="admin-mode-badge">Администратор</span><span>Полный доступ к данным карты · локальных изменений: <strong id="admin-strip-count">0</strong></span></div>
+    <div class="admin-strip-actions">
+      <button class="admin-strip-button primary" id="admin-open-panel" type="button">Панель управления</button>
+      <button class="admin-strip-button" id="admin-view-mode" type="button">Режим просмотра</button>
+    </div>
+  </div>
+
+  <section class="hero">
+    <div>
+      <p class="eyebrow">Культурная география</p>
+      <h1 id="hero-title">Модельные библиотеки ЛНР</h1>
+      <p class="intro" id="hero-intro">Современные пространства для чтения, творчества и общения. Выберите точку на карте, чтобы посмотреть официальные фотографии и совершить короткую видеоэкскурсию.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><strong id="opened-stat">15</strong><span>открыто</span></div>
+      <div class="stat"><strong id="progress-stat">2</strong><span>ожидаются в 2026</span></div>
+      <div class="stat"><strong id="planned-stat">4</strong><span>отбор 2027</span></div>
+    </div>
+  </section>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <div class="tools">
+        <div class="institution-tabs" id="institution-tabs" role="tablist" aria-label="Тип учреждения">
+          <button class="type-tab active" type="button" role="tab" aria-selected="true" data-type="library">Библиотеки</button>
+          <button class="type-tab" type="button" role="tab" aria-selected="false" data-type="museum">Музеи</button>
+          <button class="type-tab" type="button" role="tab" aria-selected="false" data-type="winner">Лучшие сельские учреждения</button>
+        </div>
+        <div class="search-wrap">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+          <input id="search" type="search" placeholder="Найти город или библиотеку" autocomplete="off">
+        </div>
+        <div class="filters" role="group" aria-label="Фильтр по статусу">
+          <button class="filter active" data-filter="all">Все</button>
+          <button class="filter" data-filter="open">Открытые</button>
+          <button class="filter" data-filter="progress">Ожидаются в 2026</button>
+          <button class="filter" data-filter="planned">Откроются в 2027</button>
+        </div>
+        <div class="discovery-tools" role="group" aria-label="Исследовать карту">
+          <button class="discovery-button" id="favorites-filter" type="button" aria-pressed="false">☆ Избранное (0)</button>
+          <button class="discovery-button" id="surprise-object" type="button">Случайный объект</button>
+          <button class="discovery-button" id="fit-results" type="button">Показать найденное</button>
+        </div>
+        <p class="result-count" id="result-count"></p>
+        <div class="program-summary" id="program-summary" aria-label="Хронология программы с 2023 года" hidden></div>
+        <p class="dataset-note" id="dataset-note" hidden></p>
+      </div>
+      <div class="library-list" id="library-list"></div>
+    </aside>
+    <section class="map-wrap" aria-label="Карта модельных библиотек">
+      <div id="map"></div>
+      <button class="map-reset" id="map-reset" type="button" title="Показать всю территорию ЛНР">Вся ЛНР</button>
+      <div class="map-legend" aria-label="Легенда карты">
+        <strong>Легенда карты</strong>
+        <div id="legend-items">
+          <div class="legend-item"><span class="legend-dot"></span><span>Открыта</span></div>
+          <div class="legend-item"><span class="legend-dot progress"></span><span>Ожидается в 2026</span></div>
+          <div class="legend-item"><span class="legend-dot planned"></span><span>Откроется в 2027</span></div>
+        </div>
+      </div>
+      <div class="map-note">Перетаскивайте карту и изменяйте масштаб колёсиком, жестами или кнопками +/−. Метки установлены по населённым пунктам.</div>
+    </section>
+  </main>
+
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <article class="modal-panel">
+      <div class="media-pane" id="media-pane">
+        <img class="main-photo" id="main-photo" alt="">
+        <div class="photo-shade"></div>
+        <button class="play-button" id="play-tour"><span id="play-icon">▶</span> <span id="play-text">Видеоэкскурсия</span></button>
+        <div class="tour-progress" id="tour-progress"></div>
+        <div class="media-caption"><strong id="media-title"></strong><span id="media-counter"></span></div>
+      </div>
+      <div class="modal-content">
+        <button class="modal-close" id="modal-close" aria-label="Закрыть">×</button>
+        <div class="status" id="modal-status"></div>
+        <h2 id="modal-title"></h2>
+        <div class="location" id="modal-location"></div>
+        <p class="description" id="modal-description"></p>
+        <dl class="details-grid" id="modal-details"></dl>
+        <div class="features" id="modal-features"></div>
+        <div class="gallery-title" id="gallery-title"><span>Фотогалерея</span><span id="gallery-count"></span></div>
+        <div class="thumbnails" id="thumbnails"></div>
+        <div class="article-links" id="article-links"></div>
+        <div class="record-actions">
+          <button class="record-action" id="edit-object" type="button">Редактировать</button>
+          <button class="record-action danger" id="delete-object" type="button">Удалить</button>
+        </div>
+        <p class="source-note" id="source-note">Фото и сведения взяты из официальных публикаций, указанных в карточке. Видеоэкскурсия собрана из кадров фотогалереи источника.</p>
+      </div>
+    </article>
+  </div>
+
+  <div class="modal admin-modal" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+    <section class="admin-panel">
+      <div class="editor-head">
+        <div><h2 id="admin-title">Панель администратора</h2><p>Добавление, редактирование и перенос данных карты</p></div>
+        <button class="modal-close" id="admin-close" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <p class="admin-note">Карта работает без сервера. Изменения сохраняются только в этом браузере. Чтобы перенести их на другой компьютер или передать разработчику, выгрузите JSON-файл.</p>
+      <div class="admin-summary" aria-label="Состояние данных">
+        <div><strong id="admin-total">0</strong><span>объектов на карте</span></div>
+        <div><strong id="admin-changed">0</strong><span>добавлено или изменено</span></div>
+        <div><strong id="admin-deleted">0</strong><span>скрыто из исходных данных</span></div>
+      </div>
+      <div class="admin-actions">
+        <button class="editor-action primary" id="add-object" type="button">+ Добавить объект</button>
+        <button class="editor-action" id="export-data" type="button">Выгрузить JSON</button>
+        <button class="editor-action" id="export-excel" type="button">Выгрузить для Excel</button>
+        <button class="editor-action" id="export-word" type="button">Выгрузить для Word</button>
+        <button class="editor-action" id="import-data" type="button">Загрузить JSON</button>
+        <button class="editor-action danger" id="reset-data" type="button">Отменить локальные изменения</button>
+        <button class="editor-action" id="exit-admin" type="button">Выйти из режима</button>
+      </div>
+      <section class="category-manager" aria-labelledby="category-title">
+        <h3 id="category-title">Вкладки карты</h3>
+        <p>Добавьте новый тип учреждений. После этого вкладку можно выбрать при создании или редактировании объекта.</p>
+        <form class="category-form" id="category-form">
+          <input id="category-name" required maxlength="45" placeholder="Например, Театры">
+          <button class="editor-action primary" type="submit">+ Добавить вкладку</button>
+        </form>
+        <div class="category-list" id="category-list"></div>
+      </section>
+      <section class="admin-catalog" aria-labelledby="admin-catalog-title">
+        <div class="admin-catalog-head">
+          <div><h3 id="admin-catalog-title">Каталог объектов</h3><p id="admin-catalog-count"></p></div>
+          <div class="admin-filters">
+            <input id="admin-search" type="search" placeholder="Название или населённый пункт" autocomplete="off">
+            <select id="admin-type-filter" aria-label="Фильтр по типу">
+              <option value="all">Все разделы</option>
+              <option value="library">Библиотеки</option>
+              <option value="museum">Музеи</option>
+              <option value="winner">Лучшие сельские</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-list" id="admin-list"></div>
+      </section>
+      <input class="file-input" id="import-file" type="file" accept="application/json,.json">
+    </section>
+  </div>
+
+  <div class="modal editor-modal" id="editor-modal" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+    <form class="editor-panel" id="editor-form">
+      <div class="editor-head">
+        <div><h2 id="editor-title">Новый объект</h2><p>Заполните карточку учреждения. Поля со звёздочкой обязательны.</p></div>
+        <button class="modal-close" id="editor-close" type="button" aria-label="Закрыть">×</button>
+      </div>
+      <div class="editor-grid">
+        <div class="field"><label for="editor-type">Тип *</label><select id="editor-type" required></select></div>
+        <div class="field"><label for="editor-status">Статус *</label><select id="editor-status" required></select></div>
+        <div class="field wide"><label for="editor-name">Название *</label><input id="editor-name" required maxlength="160" placeholder="Например, Центральная городская библиотека"></div>
+        <div class="field"><label for="editor-city">Населённый пункт *</label><input id="editor-city" required maxlength="100" placeholder="Луганск"></div>
+        <div class="field"><label for="editor-year">Год *</label><input id="editor-year" required type="number" min="1900" max="2100"></div>
+        <div class="field"><label for="editor-lat">Широта *</label><input id="editor-lat" required type="number" min="-90" max="90" step="any" placeholder="48.5740"></div>
+        <div class="field"><label for="editor-lon">Долгота *</label><input id="editor-lon" required type="number" min="-180" max="180" step="any" placeholder="39.3078"></div>
+        <div class="field wide"><label for="editor-address">Точный адрес</label><input id="editor-address" maxlength="250" placeholder="Улица, дом, населённый пункт"></div>
+        <div class="field"><label for="editor-timing">Дата или срок</label><input id="editor-timing" maxlength="180" placeholder="Открыта 15 сентября 2026 года"></div>
+        <div class="field"><label for="editor-project">Программа или проект</label><input id="editor-project" maxlength="180" placeholder="Национальный проект «Семья»"></div>
+        <div class="field"><label for="editor-hours">Режим работы</label><input id="editor-hours" maxlength="180" placeholder="Пн–Пт 09:00–18:00"></div>
+        <div class="field"><label for="editor-contacts">Контакты</label><input id="editor-contacts" maxlength="250" placeholder="Телефон, сайт или электронная почта"></div>
+        <div class="field wide"><label for="editor-concept">Краткий подзаголовок</label><input id="editor-concept" maxlength="160" placeholder="Современное пространство для жителей"></div>
+        <div class="field wide"><label for="editor-description">Описание</label><textarea id="editor-description" maxlength="2000" placeholder="Расскажите об учреждении и выполненных работах"></textarea></div>
+        <div class="field wide"><label for="editor-features">Особенности</label><input id="editor-features" placeholder="VR-зона, доступная среда, мастер-классы"></div>
+        <div class="field wide"><label for="editor-photos">Ссылки на фотографии</label><textarea id="editor-photos" placeholder="По одной ссылке в строке"></textarea></div>
+        <div class="field wide"><label for="editor-article">Ссылки на источники</label><textarea id="editor-article" placeholder="Название публикации | https://example.ru/article&#10;По одной ссылке в строке"></textarea></div>
+      </div>
+      <div class="editor-actions">
+        <button class="editor-action" id="pick-position" type="button">Указать точку на карте</button>
+        <button class="editor-action primary" type="submit">Сохранить объект</button>
+      </div>
+    </form>
+  </div>
+  <div class="placement-hint" id="placement-hint"><span>Нажмите на карту, чтобы поставить точку</span><button id="cancel-placement" type="button">Отмена</button></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+  <script>
+    ymaps.ready(() => {
+      "use strict";
+      const embeddedMap = new URLSearchParams(location.search).get("embed") === "map" && window.parent !== window;
+      if (embeddedMap) document.body.classList.add("embedded-map");
+      const base = "https://mk.lpr-reg.ru";
+      const common2027 = `${base}/uploads/posts/2026-09/1789731419_img_20260918_142919.jpg`;
+      const placeholderPhoto = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#174c40'/><circle cx='980' cy='100' r='360' fill='#a8d5ba' opacity='.35'/><text x='80' y='620' fill='#fffdf8' font-family='Arial' font-size='160'>2026</text></svg>")}`;
+      const awardPlaceholder = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#174c40'/><circle cx='960' cy='120' r='360' fill='#a8d5ba' opacity='.3'/><text x='80' y='480' fill='#fffdf8' font-family='Arial' font-size='85'>ЛУЧШИЕ СЕЛЬСКИЕ</text><text x='80' y='590' fill='#fffdf8' font-family='Arial' font-size='85'>УЧРЕЖДЕНИЯ</text></svg>")}`;
+      const awardArticle = `${base}/13917-objavleny-pobediteli-konkursa-na-denezhnoe-pooschrenie-luchshih-selskih-uchrezhdenij-kultury-lnr-v-2027-godu.html`;
+      const cultureSelectionArticle = `${base}/12315-ministerstvo-kultury-lnr-podvelo-itogi-otbora-na-predostavlenie-subsidij-v-ramkah-gosprogrammy-razvitie-kultury.html`;
+      const cultureRepairArticle = `${base}/13796-novyj-impuls-dlja-selskoj-kultury-v-treh-dk-melovskogo-okruga-nachalis-remonty.html`;
+      const cultureCompletionArticle = `${base}/14026-v-melovskom-municipalnom-okruge-uspeshno-zavershen-masshtabnyj-remont-srazu-treh-selskih-domov-kultury.html`;
+      const museumArticles = {
+        stakhanov: `${base}/12486-tehnicheskoe-obnovlenie-muzeja-stahanova-novye-vozmozhnosti-dlja-kulturnogo-razvitija.html`,
+        antratsit: `${base}/12491-antracitovskij-istoricheskij-muzej-sovremennoe-osnaschenie-vklad-v-sohranenie-pamjati.html`,
+        alchevskRepair: `${base}/13888-maksim-kucharskij-proveril-realizaciju-nacproekta-semja-v-uchrezhdenijah-kultury-alchevska.html`,
+        alchevskOpening: `${base}/14169-v-alchevskom-muzee-posle-remonta-otkrylis-dva-obnovlennyh-jekspozicionnyh-zala.html`,
+        kirovsk: `${base}/12207-v-kirovskom-istoriko-hudozhestvennom-muzee-prodolzhajutsja-raboty-v-ramkah-nacproekta-semja.html`,
+        perevalsk: `${base}/12186-perevalskij-rajonnyj-istoricheskij-muzej-posetila-ministr-kultury-rf-olga-borisovna-ljubimova.html`,
+        belovodsk: `${base}/13217-v-belovodske-posle-kapitalnogo-remonta-torzhestvenno-otkrylsja-obnovlennyj-kraevedcheskij-muzej.html`
+      };
+      const culturePhotos = [
+        "1787053786_d4ddda24-227e-4c94-9ac6-5714e3324813.jpeg",
+        "1787053788_d5e21255-f5eb-4a8f-a5c3-60ede4927477.jpeg",
+        "1787053705_a912c6df-ab9b-4577-8d57-1cfaa889e1d0.jpeg",
+        "1787053725_f821d817-703b-4c8f-ab0f-33bec4c560db.jpeg"
+      ].map(x => `${base}/uploads/posts/2026-08/${x}`);
+      const libraries = [
+        {
+          id: "slavyanoserbsk", city: "Славяносербск", coords: [48.6972, 38.9812], status: "open", year: 2026,
+          name: "Славяносербская центральная библиотека", concept: "Каждая книга — билет на вершину",
+          description: "Первое модельное пространство округа: обновлённые залы, цифровой доступ к Национальной электронной библиотеке и среда для читателей всех возрастов.",
+          features: ["Электронная библиотека", "Семейное чтение", "Событийный зал"],
+          article: `${base}/14168-v-slavjanoserbske-otkrylas-pervaja-modelnaja-biblioteka.html`,
+          photos: ["1789713559_img-20260916-124039.jpg", "1789713556_img-20260916-124036.jpg", "1789713541_img-20260916-124042.jpg", "1789713573_img-20260916-124044.jpg"].map(x => `${base}/uploads/posts/2026-09/${x}`)
+        },
+        {
+          id: "antratsit", city: "Антрацит", coords: [48.1151, 39.0913], status: "open", year: 2026,
+          name: "Креативная семейная библиотека", concept: "Пространство для всей семьи",
+          description: "Малая модельная библиотека с зонами информации и релаксации, семейного общения, абонементом «Почитай и поиграй» и интерактивной площадкой.",
+          features: ["Интерактивная зона", "Детский абонемент", "Семейный досуг"],
+          article: `${base}/13897-v-den-semi-ljubvi-i-vernosti-v-antracite-otkrylas-pervaja-v-2026-godu-modelnaja-biblioteka.html`,
+          photos: ["1783508421_img_20260708_135416.jpg", "1783508359_img_20260708_135414.jpg", "1783508373_img_20260708_135413.jpg", "1783508428_img_20260708_135410.jpg"].map(x => `${base}/uploads/posts/2026-07/${x}`)
+        },
+        {
+          id: "antratsit-2023", city: "Антрацит", coords: [48.1098, 39.0835], status: "open", year: 2023,
+          name: "Первая модельная библиотека АГЦБС", concept: "Территория новых возможностей",
+          description: "Первая модельная библиотека Антрацитовской городской централизованной библиотечной системы. Пространство разделено на тематические секторы, оснащено новой литературой и гаджетами; отдельно создана зона для детей.",
+          features: ["Тематические секторы", "Детская зона", "Гаджеты", "Открытое пространство"],
+          article: "https://luganmedia.ru/2023/12/28/v-antratsitovskoj-gorodskoj-bibliotechnoj-sisteme-sostoyalos-otkrytie-pervoj-modelnoj-biblioteki/",
+          photos: [
+            "https://luganmedia.ru/wp-content/uploads/2023/12/DSC0497.jpg",
+            "https://luganmedia.ru/wp-content/uploads/2023/12/DSC0450-2-1024x682.jpg",
+            "https://luganmedia.ru/wp-content/uploads/2023/12/DSC0463-1024x682.jpg",
+            "https://luganmedia.ru/wp-content/uploads/2023/12/DSC0485-1024x682.jpg"
+          ]
+        },
+        {
+          id: "novopskov", city: "Новопсков", coords: [49.5423, 39.0896], status: "open", year: 2023,
+          name: "Новопсковская модельная библиотека", concept: "Современная внутри и снаружи",
+          description: "Одна из первых модельных библиотек ЛНР, созданная в 2023 году. Внутри появились мини-типография, интерактивные устройства, творческая мастерская и дизайн-студия; в 2026 году началось отдельное обновление фасада.",
+          features: ["Мини-типография", "Интерактивный стол", "Творческая мастерская", "Дизайн-студия"],
+          article: "https://luganmedia.ru/2026/08/13/nachat-kapitalnyj-remont-fasada-modelnoj-biblioteki-v-novopskove/",
+          photos: ["DSC_0582-1.jpg", "DSC_0586-1024x683.jpg", "DSC_0588-1024x683.jpg"].map(x => `https://luganmedia.ru/wp-content/uploads/2026/08/${x}`)
+        },
+        {
+          id: "belovodsk", city: "Беловодск", coords: [49.2085, 39.5898], status: "open", year: 2025,
+          name: "Библиотека: новый формат", concept: "Технологии и диалог поколений",
+          description: "Центральная библиотека с VR-зоной, пространством семейного чтения, мультстудией, интерактивными панелями и доступной средой.",
+          features: ["VR-зона", "Мультстудия", "Умный глобус", "Доступная среда"],
+          article: `${base}/12957-v-belovodske-otkrylas-modelnaja-biblioteka-novogo-pokolenija.html`,
+          photos: ["1766742861_photo_2025-12-26_12-12-22-kopija.jpg", "1766742936_photo_2025-12-26_12-12-30-kopija.jpg", "1766742935_photo_2025-12-26_12-12-32-kopija.jpg", "1766742913_photo_2025-12-26_12-12-34-kopija.jpg"].map(x => `${base}/uploads/posts/2025-12/${x}`)
+        },
+        {
+          id: "belokurakino", city: "Белокуракино", coords: [49.5341, 38.7307], status: "open", year: 2025,
+          name: "Белокуракинская центральная библиотека", concept: "Четыре острова возможностей",
+          description: "Многофункциональный общественный центр с зонами «Тихая гавань», «АртОстровок», «Библиодоступ» и «ЛитВолна», а также мультимедийным конференц-залом.",
+          features: ["Арт-пространство", "Конференц-зал", "Инклюзивная зона"],
+          article: `${base}/12956-v-belokurakino-torzhestvenno-otkrylas-modelnaja-biblioteka.html`,
+          photos: ["1766668922_photo_2025-12-25_16-03-38.jpg", "1766668870_photo_2025-12-25_16-03-38-2.jpg", "1766668922_photo_2025-12-25_16-03-39.jpg", "1766668889_photo_2025-12-25_16-03-39-2.jpg"].map(x => `${base}/uploads/posts/2025-12/${x}`)
+        },
+        {
+          id: "perevalsk", city: "Перевальск", coords: [48.4387, 38.8438], status: "open", year: 2025,
+          name: "Модельная библиотека «Библиопортал»", concept: "Семь тематических порталов",
+          description: "Технологичный культурный центр с 3D-принтером, VR-очками, интерактивным полом, студией звукозаписи, конференц-залом и зоной мастер-классов.",
+          features: ["3D-печать", "VR", "Студия звукозаписи", "Мастер-классы"],
+          article: `${base}/12835-v-perevalske-otkrylas-sovremennaja-modelnaja-biblioteka-biblioportal.html`,
+          photos: ["1764859289_photo_2025-12-04_17-04-55.jpg", "1764859278_photo_2025-12-04_17-05-02.jpg", "1764859322_photo_2025-12-04_17-05-06.jpg", "1764859259_photo_2025-12-04_17-05-09.jpg"].map(x => `${base}/uploads/posts/2025-12/${x}`)
+        },
+        {
+          id: "stanitsa", city: "Станица Луганская", coords: [48.6573, 39.4706], status: "open", year: 2025,
+          name: "Детская модельная библиотека «Казачок»", concept: "Знания, традиции и семейный досуг",
+          description: "Детское пространство с «Читайка-холлом», интеллектуальным рингом, BOOK-лабиринтом, кинозалом, интерактивной песочницей и гончарным кругом.",
+          features: ["BOOK-лабиринт", "Кинозал", "Интерактивная песочница", "Краеведение"],
+          article: `${base}/12715-v-stanice-luganskoj-torzhestvenno-otkrylas-modelnaja-biblioteka-kazachok.html`,
+          photos: ["1763126883_photo_2025-11-14_16-26-54.jpg", "1763126942_photo_2025-11-14_16-27-02.jpg", "1763126963_photo_2025-11-14_16-27-04.jpg", "1763126966_photo_2025-11-14_16-27-06.jpg"].map(x => `${base}/uploads/posts/2025-11/${x}`)
+        },
+        {
+          id: "sverdlovsk", city: "Свердловск", coords: [48.0842, 39.6524], status: "open", year: 2025,
+          name: "Центральная городская библиотека для детей", concept: "Новый этап детского чтения",
+          description: "Пространство для детей и подростков с интернет-гостиной, дискуссионной зоной, интерактивным полом и творческой лабораторией.",
+          features: ["Интерактивный пол", "Интернет-гостиная", "Творческая лаборатория"],
+          article: `${base}/12607-v-lnr-otkrylas-modelnaja-biblioteka-novogo-pokolenija-dlja-detej.html`,
+          photos: ["1761415507_photo_2025-10-25_21-03-04.jpg", "1761415523_photo_2025-10-25_21-03-01.jpg", "1761415476_photo_2025-10-25_21-03-06.jpg", "1761415532_photo_2025-10-25_21-03-09.jpg"].map(x => `${base}/uploads/posts/2025-10/${x}`)
+        },
+        {
+          id: "stakhanov", city: "Стаханов", coords: [48.5682, 38.6435], status: "open", year: 2024,
+          name: "Модельная библиотека «ТриУмф»", concept: "Читать, творить, смотреть",
+          description: "Обновлённая центральная городская библиотека с отдельными пространствами для чтения, общения, творчества и кинопросмотров, адаптированная для посетителей с ОВЗ.",
+          features: ["Кинопросмотры", "Творческие зоны", "Доступная среда"],
+          article: `${base}/11756-novaja-modelnaja-biblioteka-triumf-otkryla-svoi-dveri-dlja-zhitelej-stahanova.html`,
+          photos: ["1735213576_photo_2024-12-26_14-43-54.jpg", "1735213601_photo_2024-12-26_14-43-56.jpg", "1735213565_photo_2024-12-26_14-43-59.jpg", "1735213570_photo_2024-12-26_14-44-00.jpg"].map(x => `${base}/uploads/posts/2024-12/${x}`)
+        },
+        {
+          id: "rovenki", city: "Ровеньки", coords: [48.0832, 39.3771], status: "open", year: 2024,
+          name: "Центральная библиотека имени Григория Сковороды", concept: "Библиотека — точка РОСТА",
+          description: "Обновлённая библиотека для взрослых разделена на пространства для чтения, творчества, активных занятий, общения и сосредоточенной работы.",
+          features: ["Творческие зоны", "Семейный досуг", "Пространство для работы"],
+          article: "https://luganmedia.ru/2024/12/04/na-baze-tsentralnoj-biblioteki-dlya-vzroslykh-imeni-grigoriya-skovorody-4-dekabrya-sostoyalos-otkrytie-modelnoj-biblioteki/",
+          photos: ["DSC_0123-1024x682.jpg", "DSC_0131-1024x682.jpg", "DSC_0134-1024x682.jpg", "DSC_0160-1024x682.jpg"].map(x => `https://luganmedia.ru/wp-content/uploads/2024/12/${x}`)
+        },
+        {
+          id: "alchevsk", city: "Алчевск", coords: [48.4721, 38.7972], status: "open", year: 2024,
+          name: "Центральная городская библиотека «#БИБЛИОПРОСПЕКТ»", concept: "Территория чтения и развития",
+          description: "Центральная библиотека Алчевска открылась в модельном формате после капитального ремонта и стала культурно-досуговым пространством для посетителей разных возрастов.",
+          features: ["Чтение", "Интеллектуальный досуг", "Событийные пространства"],
+          article: "https://luganmedia.ru/2024/10/23/v-alchevske-posle-kapitalnogo-remonta-v-modelnom-formate-otkrylas-tsentralnaya-gorodskaya-biblioteka/",
+          photos: ["DSC_0041-1024x682.jpg", "DSC_0080-1024x682.jpg", "DSC_0141-1-1024x682.jpg", "DSC_0182-1024x682.jpg"].map(x => `https://luganmedia.ru/wp-content/uploads/2024/10/${x}`)
+        },
+        {
+          id: "krasny-luch", city: "Красный Луч", coords: [48.1393, 38.9322], status: "open", year: 2023,
+          name: "Центральная городская библиотека имени Н. К. Крупской", concept: "Галактика знаний",
+          description: "Одна из трёх первых модельных библиотек республики. Космическую концепцию дополняют мобильный планетарий, детская зона, современные книги, техника и доступная среда.",
+          features: ["Мобильный планетарий", "Детская зона", "Новые фонды", "Доступная среда"],
+          article: "https://luganmedia.ru/2023/11/21/v-krasnom-luche-vedetsya-obustrojstvo-modelnoj-biblioteki/",
+          photos: ["https://luganmedia.ru/wp-content/uploads/2023/11/1700568162_photo_2023-11-21_15-00-34.jpg"]
+        },
+        {
+          id: "markovka", city: "Марковка", coords: [49.5221, 39.5701], status: "open", year: 2025,
+          name: "Марковская центральная библиотека", concept: "Современный центр притяжения",
+          description: "Модельная библиотека нового типа с мультимедийной техникой и зонами для чтения, общения, мероприятий и разных видов творческой деятельности.",
+          features: ["Мультимедийная техника", "Событийная площадка", "Творческие зоны"],
+          article: "https://luganmedia.ru/2025/12/17/v-markovskom-munitsipalnom-okruge-segodnya-otkrylas-modelnaya-biblioteka/",
+          photos: ["01-1-1024x768.jpg", "06-1024x682.jpg", "08-1024x682.jpg", "09-1024x682.jpg"].map(x => `https://luganmedia.ru/wp-content/uploads/2025/12/${x}`)
+        },
+        {
+          id: "stakhanov-south", city: "Стаханов", coords: [48.5484, 38.6264], status: "open", year: 2026,
+          name: "Библиотека-филиал № 3", concept: "Город знаний и семьи",
+          description: "Вторая модельная библиотека Стаханова объединяет пять тематических зон для цифрового обучения, настольных игр, семейного чтения и детского творчества.",
+          features: ["Пять тематических зон", "Цифровая грамотность", "Семейное чтение", "Инклюзивная среда"],
+          article: "https://luganmedia.ru/2026/09/10/v-stakhanove-otkrylas-vtoraya-modelnaya-biblioteka/",
+          photos: ["1-1-1024x682.jpg", "5-1024x682.jpg", "7-1024x682.jpg", "8-1024x682.jpg"].map(x => `https://luganmedia.ru/wp-content/uploads/2026/09/${x}`)
+        },
+        {
+          id: "gorskoye", city: "Горское", coords: [48.7483, 38.4958], status: "progress", year: 2026,
+          name: "Горская модельная библиотека", concept: "Большое преображение",
+          description: "Учреждение проходит капитальный ремонт и техническое переоснащение: обновляются инженерные системы, помещения, входная группа, оборудование и книжный фонд.",
+          features: ["Капремонт", "Проектор", "Новая техника", "Новые книги"],
+          article: `${base}/14001-v-gorskom-zavershaetsja-kapitalnyj-remont-modelnoj-biblioteki.html`,
+          photos: ["1786454449_img-20260811-145153.jpg", "1786454422_img-20260811-145150.jpg", "1786454397_img-20260811-145155.jpg", "1786454432_img-20260811-145144.jpg"].map(x => `${base}/uploads/posts/2026-08/${x}`)
+        },
+        {
+          id: "severodonetsk-children", city: "Северодонецк", coords: [48.9482, 38.4933], status: "progress", year: 2026,
+          name: "Северодонецкая библиотека для детей", concept: "Будущее модельное пространство для детей",
+          description: "Детскую библиотеку планируется открыть в Северодонецке в 2026 году в статусе модельной. Подробности проекта и официальные фотографии в открытом доступе пока не опубликованы.",
+          features: ["Открытие в 2026 году", "Детская библиотека", "Модельное пространство"],
+          article: "", photos: [placeholderPhoto], photoAvailable: false
+        },
+        {
+          id: "rovenki-2027", city: "Ровеньки", coords: [48.0734, 39.3421], status: "planned", year: 2027,
+          name: "Детская библиотека-филиал", concept: "Победитель федерального отбора",
+          description: "В 2027 году библиотеку ждут обновление интерьеров и оборудования, пополнение книжного фонда и создание комфортных условий для читателей.",
+          features: ["Проект 2027", "Детская библиотека", "Новые фонды"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+        },
+        {
+          id: "alchevsk-2027", city: "Алчевск", coords: [48.4674, 38.7982], status: "planned", year: 2027,
+          name: "Библиотека-филиал № 3", concept: "Победитель федерального отбора",
+          description: "Филиал Центральной библиотеки Алчевска вошёл в число победителей отбора на создание модельных библиотек в 2027 году.",
+          features: ["Проект 2027", "Новые технологии", "Комфортная среда"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+        },
+        {
+          id: "perevalsk-2027", city: "Перевальск", coords: [48.4319, 38.8525], status: "planned", year: 2027,
+          name: "Детская библиотека-филиал № 22", concept: "Победитель федерального отбора",
+          description: "Детская библиотека Перевальска получит федеральную поддержку для масштабного обновления пространства, фонда и оборудования.",
+          features: ["Проект 2027", "Детская библиотека", "Обновление пространства"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+        },
+        {
+          id: "krasny-luch-2027", city: "Красный Луч", coords: [48.1393, 38.9375], status: "planned", year: 2027,
+          name: "Библиотека-филиал № 3", concept: "Победитель федерального отбора",
+          description: "Филиал Краснолучской центральной городской библиотеки имени Н. К. Крупской станет модельным пространством в 2027 году.",
+          features: ["Проект 2027", "Новые издания", "Современное оборудование"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+        }
+      ];
+
+      const cultureCenters = [
+        {
+          id: "kalmykovsky-sdk", city: "село Калмыковка", coords: [49.2768, 39.8526], status: "renovated", year: 2026,
+          name: "Калмыковский сельский дом культуры", concept: "Надёжная кровля для сельского центра культуры",
+          description: "Дом культуры обновлён по программе укрепления материально-технической базы учреждений в населённых пунктах с численностью до 50 тысяч человек. На субсидию выполнен текущий ремонт кровли.",
+          features: ["Субсидия 7 142 128,35 ₽", "Ремонт кровли", "Программа до 50 тысяч жителей"],
+          articles: [
+            { label: "Итоги отбора 25 победителей", url: cultureSelectionArticle },
+            { label: "Начало ремонтных работ", url: cultureRepairArticle },
+            { label: "Завершение ремонта", url: cultureCompletionArticle }
+          ],
+          photos: culturePhotos
+        },
+        {
+          id: "morozovsky-sdk", city: "село Морозовка", coords: [49.4649, 39.8920], status: "renovated", year: 2026,
+          name: "Морозовский сельский дом культуры", concept: "Обновлённый зрительный зал и сцена",
+          description: "Внутренние помещения СДК отремонтированы за счёт субсидии программы для домов культуры в небольших населённых пунктах. В зрительном зале обновлены полы и стены, сценическая площадка приведена в порядок.",
+          features: ["Субсидия 8 162 432,41 ₽", "Новые полы", "Антивандальная отделка", "Обновление сцены"],
+          articles: [
+            { label: "Итоги отбора 25 победителей", url: cultureSelectionArticle },
+            { label: "Начало ремонтных работ", url: cultureRepairArticle },
+            { label: "Завершение ремонта", url: cultureCompletionArticle }
+          ],
+          photos: culturePhotos
+        },
+        {
+          id: "nikolsky-sdk", city: "село Никольское", coords: [49.5291, 39.9483], status: "renovated", year: 2026,
+          name: "Никольский сельский дом культуры", concept: "Комфортное пространство для встреч и концертов",
+          description: "Сельский дом культуры получил субсидию на ремонт внутренних помещений. В зрительном зале уложены новые полы, стены защищены современными антивандальными материалами, обновлена сцена.",
+          features: ["Субсидия 8 162 432,41 ₽", "Ремонт помещений", "Зрительный зал", "Обновление сцены"],
+          articles: [
+            { label: "Итоги отбора 25 победителей", url: cultureSelectionArticle },
+            { label: "Начало ремонтных работ", url: cultureRepairArticle },
+            { label: "Завершение ремонта", url: cultureCompletionArticle }
+          ],
+          photos: culturePhotos
+        }
+      ];
+
+      const museums = [
+        {
+          id: "stakhanov-museum", city: "Стаханов", coords: [48.5680, 38.6500], status: "equipped", year: 2025,
+          upgradeTypes: ["equipped"], project: "Национальный проект «Семья»",
+          name: "Городской историко-художественный музей г. Стаханова", concept: "Новые витрины для двух экспозиций",
+          description: "Музей получил пять передвижных и семь стационарных витрин. Оборудование используется в экспозициях об истории стахановского движения и декоративно-прикладном искусстве советской эпохи.",
+          features: ["5 передвижных витрин", "7 стационарных витрин", "Нацпроект «Семья»"],
+          article: museumArticles.stakhanov,
+          photos: ["1759743273_photo_2025-10-06_12-06-35.jpg", "1759743331_photo_2025-10-06_12-06-26.jpg", "1759743301_photo_2025-10-06_12-06-29.jpg"].map(x => `${base}/uploads/posts/2025-10/${x}`)
+        },
+        {
+          id: "antratsit-museum", city: "Антрацит", coords: [48.1190, 39.0870], status: "equipped", year: 2025,
+          upgradeTypes: ["equipped"], project: "Национальный проект «Семья»",
+          name: "Антрацитовский исторический музей", concept: "Современный выставочный зал",
+          description: "Для музея закуплены витрины, пресс-волы, звуковое оборудование, микрофоны, манекены и торсы. В сентябре 2025 года после оснащения открылся обновлённый экспозиционный зал.",
+          features: ["Выставочные витрины", "Звуковое оборудование", "Манекены", "Нацпроект «Семья»"],
+          article: museumArticles.antratsit,
+          photos: ["1759828196_photo_2025-10-06_13-10-59.jpg", "1759828211_photo_2025-10-06_13-11-01.jpg", "1759828239_photo_2025-10-06_13-11-03.jpg"].map(x => `${base}/uploads/posts/2025-10/${x}`)
+        },
+        {
+          id: "alchevsk-museum", city: "Алчевск", coords: [48.4740, 38.7970], status: "museum-both", year: 2026,
+          upgradeTypes: ["equipped", "repaired"], project: "Национальный проект «Семья»",
+          name: "Алчевский городской исторический музей", concept: "Капремонт и новая экспозиционная среда",
+          description: "В 2025 году капитально отремонтированы входная группа, коммуникации и помещения музея. В 2025–2026 годах учреждение получило витрины, стенды, стеллажи, манекены, оргтехнику и мебель; открыты два обновлённых зала.",
+          features: ["Капитальный ремонт", "Витрины и стенды", "Оргтехника и мебель", "Доступная среда"],
+          articles: [
+            { label: "Итоги капитального ремонта", url: museumArticles.alchevskRepair },
+            { label: "Открытие обновлённых залов", url: museumArticles.alchevskOpening }
+          ],
+          photos: ["1789713826_img-20260917-111139.jpg", "1789713797_img-20260917-111141.jpg", "1789713760_img-20260917-111140.jpg"].map(x => `${base}/uploads/posts/2026-09/${x}`)
+        },
+        {
+          id: "kirovsk-museum", city: "Кировск", coords: [48.6370, 38.6430], status: "equipped", year: 2025,
+          upgradeTypes: ["equipped"], project: "Национальный проект «Семья»",
+          name: "Кировский историко-художественный музей", concept: "Оснащение экспозиции «Город на линии фронта»",
+          description: "В музей поставлены комплекс МКЗ-3, две витрины ВТ-7 и четыре витрины ВТ-22 для новой военной экспозиции. Отдельный многоэтапный капитальный ремонт здания продолжается, поэтому музей не учтён в фильтре завершённых ремонтов.",
+          features: ["Музейный комплекс МКЗ-3", "6 витрин", "Монтаж оборудования", "Ремонт продолжается"],
+          article: museumArticles.kirovsk,
+          photos: ["1755156899_photo_2025-08-14_10-01-14.jpg", "1755156963_photo_2025-08-14_10-01-08.jpg", "1755157029_photo_2025-08-14_10-01-10.jpg"].map(x => `${base}/uploads/posts/2025-08/${x}`)
+        },
+        {
+          id: "perevalsk-museum", city: "Перевальск", coords: [48.4380, 38.8440], status: "repaired", year: 2024,
+          upgradeTypes: ["repaired"], project: "Национальный проект «Культура»",
+          name: "Перевальский районный исторический музей", concept: "Полное обновление музейного здания",
+          description: "В рамках нацпроекта «Культура» заменены электропроводка, окна, двери и полы, обновлены освещение и кондиционирование. Созданы доступный санузел, гардероб, охрана, системы оповещения и пожарной безопасности.",
+          features: ["Капитальный ремонт", "Инженерные системы", "Доступная среда", "Нацпроект «Культура»"],
+          article: museumArticles.perevalsk,
+          photos: ["1754900564_photo_2025-08-11_11-15-15.jpg", "1754900660_photo_2025-08-11_11-15-34.jpg", "1754900657_photo_2025-08-11_11-15-37.jpg"].map(x => `${base}/uploads/posts/2025-08/${x}`)
+        },
+        {
+          id: "belovodsk-museum", city: "Беловодск", coords: [49.2090, 39.5880], status: "museum-both", year: 2026,
+          upgradeTypes: ["equipped", "repaired"], project: "Национальные проекты «Культура» и «Семья»",
+          name: "Беловодский краеведческий музей", concept: "Комплексное обновление музея",
+          description: "Ремонт, начатый в 2024 году, полностью обновил помещения и коммуникации музея. В 2025 году учреждение получило современные экспозиционные витрины; обновлённый музей открылся 5 марта 2026 года.",
+          features: ["Капитальный ремонт", "Новые коммуникации", "Экспозиционные витрины", "Два нацпроекта"],
+          article: museumArticles.belovodsk,
+          photos: ["1772718516_photo_2026-03-05_16-46-32.jpg", "1772718427_photo_2026-03-05_16-46-27.jpg", "1772718461_photo_2026-03-05_16-46-21.jpg"].map(x => `${base}/uploads/posts/2026-03/${x}`)
+        }
+      ];
+
+      const winners = [
+        {
+          id: "award-chervona-polyana-2027", city: "село Червоная Поляна", coords: [48.2390, 39.0963], status: "winner", year: 2027,
+          name: "Червонополянская детская школа искусств", concept: "Образование и цифровые форматы",
+          description: "По итогам отбора на 2027 год школа вошла в число пяти лучших сельских учреждений культуры ЛНР. В школе действуют пять творческих коллективов; воспитанники и педагоги участвовали в 14 конкурсах за 2025–2026 учебный год.",
+          features: ["Поощрение 100 000 ₽", "5 творческих коллективов", "Детская школа искусств"], article: awardArticle, photos: [awardPlaceholder], photoAvailable: false
+        },
+        {
+          id: "award-dyakovo-2027", city: "село Дьяково", coords: [47.9437, 39.1285], status: "winner", year: 2027,
+          name: "Дьяковская детская музыкальная школа", concept: "Музыкальное образование и народные традиции",
+          description: "Школа признана победителем отбора лучших сельских учреждений культуры на 2027 год. Педагоги сохраняют народные музыкальные традиции, а учреждение активно рассказывает о своей работе в СМИ и социальных сетях.",
+          features: ["Поощрение 100 000 ₽", "Музыкальная школа", "Народные традиции"], article: awardArticle, photos: [awardPlaceholder], photoAvailable: false
+        },
+        {
+          id: "award-orekhovo-2027", city: "село Орехово", coords: [48.0436, 39.1724], status: "winner", year: 2027,
+          name: "Клуб с. Орехово, филиал № 7 Антрацитовского ДК им. Ленина", concept: "Творчество и активный досуг для молодёжи",
+          description: "Клуб вошёл в пятёрку победителей отбора на 2027 год. Половина культурно-просветительских мероприятий ориентирована на детей и молодёжь; при клубе работают спортивные объединения и коллектив художественного слова «Юность».",
+          features: ["Поощрение 100 000 ₽", "Сельский клуб", "Молодёжные программы"], article: awardArticle, photos: [awardPlaceholder], photoAvailable: false
+        },
+        {
+          id: "award-kolyadovka-2027", city: "село Колядовка", coords: [49.0914, 39.2101], status: "winner", year: 2027,
+          name: "Отдел-музей истории села Колядовка", concept: "История малой родины и экспедиции",
+          description: "Отдел Новоайдарского районного краеведческого музея стал победителем отбора на 2027 год. Сотрудники собирают материалы об истории сёл округа и создают новые экспозиции; в 2025 году музей приняли более 6 000 посетителей очно.",
+          features: ["Поощрение 100 000 ₽", "Сельский музей", "Краеведческие экспедиции"], article: awardArticle, photos: [awardPlaceholder], photoAvailable: false
+        },
+        {
+          id: "award-maloivanovka-2027", city: "село Малоивановка", coords: [48.3766, 38.6454], status: "winner", year: 2027,
+          name: "Малоивановский Дом культуры", concept: "Фестиваль казачьей песни и сельское творчество",
+          description: "Филиал Перевальского районного Дворца культуры вошёл в число победителей отбора на 2027 год. Здесь проводят фестиваль казачьей песни и работают вокальный, танцевальный и литературный творческие коллективы.",
+          features: ["Поощрение 100 000 ₽", "Сельский дом культуры", "Казачий фестиваль"], article: awardArticle, photos: [awardPlaceholder], photoAvailable: false
+        }
+      ];
+
+      const statuses = {
+        open: { label: "Открыта", card: "", marker: "" },
+        progress: { label: "Ожидается в 2026", card: "progress", marker: "progress" },
+        planned: { label: "Открытие в 2027", card: "planned", marker: "planned" },
+        renovated: { label: "Ремонт завершён", card: "renovated", marker: "renovated" },
+        equipped: { label: "Музей оснащён", card: "equipped", marker: "equipped" },
+        repaired: { label: "Музей отремонтирован", card: "repaired", marker: "repaired" },
+        "museum-both": { label: "Оснащён и отремонтирован", card: "museum-both", marker: "museum-both" },
+        winner: { label: "Победитель отбора на 2027 год", card: "winner", marker: "winner" },
+        active: { label: "Действует", card: "active", marker: "active" }
+      };
+      const systemCategories = [
+        { id: "library", label: "Библиотеки", singular: "Библиотека", system: true },
+        { id: "museum", label: "Музеи", singular: "Музей", system: true },
+        { id: "winner", label: "Лучшие сельские учреждения", singular: "Лучшее сельское учреждение", system: true }
+      ];
+      const openingDetails = {
+        slavyanoserbsk: "Открыта 16 сентября 2026 года",
+        antratsit: "Открыта 8 июля 2026 года",
+        "antratsit-2023": "Открыта 28 декабря 2023 года",
+        novopskov: "Открыта в 2023 году; фасад обновляется в 2026 году",
+        belovodsk: "Открыта 26 декабря 2025 года",
+        belokurakino: "Открыта 25 декабря 2025 года",
+        perevalsk: "Открыта 4 декабря 2025 года",
+        stanitsa: "Открыта 14 ноября 2025 года",
+        sverdlovsk: "Открыта 25 октября 2025 года",
+        stakhanov: "Открыта 26 декабря 2024 года",
+        rovenki: "Открыта 4 декабря 2024 года",
+        alchevsk: "Открыта 23 октября 2024 года",
+        "krasny-luch": "Открыта в 2023 году",
+        markovka: "Открыта 17 декабря 2025 года",
+        "stakhanov-south": "Открыта 10 сентября 2026 года",
+        gorskoye: "Обновление планируется завершить в 2026 году",
+        "severodonetsk-children": "Открытие планируется в 2026 году",
+        "rovenki-2027": "Открытие планируется в 2027 году",
+        "alchevsk-2027": "Открытие планируется в 2027 году",
+        "perevalsk-2027": "Открытие планируется в 2027 году",
+        "krasny-luch-2027": "Открытие планируется в 2027 году",
+        "kalmykovsky-sdk": "Ремонт завершён к 18 августа 2026 года",
+        "morozovsky-sdk": "Ремонт завершён к 18 августа 2026 года",
+        "nikolsky-sdk": "Ремонт завершён к 18 августа 2026 года",
+        "stakhanov-museum": "Оборудование получено в 2025 году",
+        "antratsit-museum": "Обновлённый зал открыт в сентябре 2025 года",
+        "alchevsk-museum": "Капремонт завершён в 2025 году; залы открыты 17 сентября 2026 года",
+        "kirovsk-museum": "Оборудование поставлено в 2025 году; монтаж и ремонт продолжаются",
+        "perevalsk-museum": "Капитальный ремонт выполнен в 2024 году",
+        "belovodsk-museum": "После обновления открыт 5 марта 2026 года",
+        "award-chervona-polyana-2027": "Отбор на 2027 год; итоги опубликованы 9 июля 2026 года",
+        "award-dyakovo-2027": "Отбор на 2027 год; итоги опубликованы 9 июля 2026 года",
+        "award-orekhovo-2027": "Отбор на 2027 год; итоги опубликованы 9 июля 2026 года",
+        "award-kolyadovka-2027": "Отбор на 2027 год; итоги опубликованы 9 июля 2026 года",
+        "award-maloivanovka-2027": "Отбор на 2027 год; итоги опубликованы 9 июля 2026 года"
+      };
+      const storageKey = "culture-map-editor-v1";
+      const favoritesKey = "culture-map-favorites-v1";
+      const list = document.getElementById("library-list");
+      const search = document.getElementById("search");
+      const resultCount = document.getElementById("result-count");
+      const filters = document.querySelector(".filters");
+      const datasetNote = document.getElementById("dataset-note");
+      const programSummary = document.getElementById("program-summary");
+      const modal = document.getElementById("modal");
+      const baseInstitutions = [
+        ...libraries.map(item => ({ ...item, type: "library" })),
+        ...museums.map(item => ({ ...item, type: "museum" })),
+        ...winners.map(item => ({ ...item, type: "winner" }))
+      ];
+      let savedData = loadSavedData();
+      let institutions = buildInstitutions();
+
+      function allCategories() {
+        return [...systemCategories, ...savedData.categories];
+      }
+
+      function categoryLabel(type, singular = true) {
+        const category = allCategories().find(item => item.id === type);
+        return category ? (singular ? category.singular || category.label : category.label) : type;
+      }
+
+      function renderCategoryControls() {
+        const categories = allCategories();
+        const tabs = document.getElementById("institution-tabs");
+        tabs.innerHTML = categories.map(category => `<button class="type-tab ${category.id === activeType ? "active" : ""}" type="button" role="tab" aria-selected="${category.id === activeType}" data-type="${escapeHtml(category.id)}">${escapeHtml(category.label)}</button>`).join("");
+
+        const editorType = document.getElementById("editor-type");
+        const selectedEditorType = editorType.value;
+        editorType.innerHTML = categories.map(category => `<option value="${escapeHtml(category.id)}">${escapeHtml(category.singular || category.label)}</option>`).join("");
+        if (categories.some(category => category.id === selectedEditorType)) editorType.value = selectedEditorType;
+
+        const adminTypeFilter = document.getElementById("admin-type-filter");
+        const selectedFilter = adminTypeFilter.value;
+        adminTypeFilter.innerHTML = `<option value="all">Все разделы</option>${categories.map(category => `<option value="${escapeHtml(category.id)}">${escapeHtml(category.label)}</option>`).join("")}`;
+        if (categories.some(category => category.id === selectedFilter)) adminTypeFilter.value = selectedFilter;
+
+        document.getElementById("category-list").innerHTML = categories.map(category => `<span class="category-item ${category.system ? "system" : ""}"><span>${escapeHtml(category.label)}</span>${category.system ? "" : `<button class="category-delete" type="button" data-category-delete="${escapeHtml(category.id)}" title="Удалить вкладку">×</button>`}</span>`).join("");
+      }
+      const lnrBounds = [[47.78, 37.84], [50.08, 40.25]];
+      const map = new ymaps.Map("map", {
+        center: [48.93, 39.05],
+        zoom: 7,
+        controls: ["zoomControl", "fullscreenControl"]
+      }, {
+        minZoom: 6,
+        maxZoom: 17,
+        suppressMapOpenBlock: true
+      });
+      const showLnr = () => map.setBounds(lnrBounds, { checkZoomRange: true, zoomMargin: 35 });
+      document.getElementById("map-reset").addEventListener("click", showLnr);
+      showLnr();
+
+      const markers = new Map();
+      let activeType = "library";
+      let activeFilter = "all";
+      let selectedId = null;
+      let activeLibrary = null;
+      let photoIndex = 0;
+      let tourTimer = null;
+      let editingId = null;
+      let placementMode = false;
+      let adminMode = false;
+      let favoritesOnly = false;
+      let favorites;
+      try {
+        const stored = JSON.parse(localStorage.getItem(favoritesKey));
+        favorites = new Set(Array.isArray(stored) ? stored.filter(id => typeof id === "string") : []);
+      } catch (error) {
+        favorites = new Set();
+      }
+
+      syncMarkers();
+
+      window.openInstitution = id => {
+        const institution = institutions.find(item => item.id === id);
+        if (institution) openModal(institution);
+      };
+
+      function loadSavedData() {
+        try {
+          const parsed = JSON.parse(localStorage.getItem(storageKey));
+          return parsed && Array.isArray(parsed.records) && Array.isArray(parsed.deleted)
+            ? {
+                records: parsed.records,
+                deleted: parsed.deleted,
+                categories: Array.isArray(parsed.categories) ? parsed.categories
+                  .filter(item => item && typeof item.id === "string" && typeof item.label === "string" && !systemCategories.some(system => system.id === item.id))
+                  .map(item => ({ id: item.id, label: item.label, singular: typeof item.singular === "string" ? item.singular : item.label })) : []
+              }
+            : { records: [], deleted: [], categories: [] };
+        } catch (error) {
+          return { records: [], deleted: [], categories: [] };
+        }
+      }
+
+      function buildInstitutions() {
+        const deleted = new Set(savedData.deleted);
+        const overrides = new Map(savedData.records.map(item => [item.id, item]));
+        const builtInIds = new Set(baseInstitutions.map(item => item.id));
+        return [
+          ...baseInstitutions.filter(item => !deleted.has(item.id)).map(item => overrides.get(item.id) || item),
+          ...savedData.records.filter(item => !builtInIds.has(item.id) && !deleted.has(item.id))
+        ];
+      }
+
+      function persistData() {
+        localStorage.setItem(storageKey, JSON.stringify(savedData));
+        updateAdminSummary();
+      }
+
+      function updateAdminSummary() {
+        const total = document.getElementById("admin-total");
+        if (!total) return;
+        total.textContent = institutions.length;
+        document.getElementById("admin-changed").textContent = savedData.records.length;
+        document.getElementById("admin-deleted").textContent = savedData.deleted.length;
+        document.getElementById("admin-strip-count").textContent = savedData.records.length + savedData.deleted.length + savedData.categories.length;
+        renderAdminCatalog();
+      }
+
+      function renderAdminCatalog() {
+        const adminList = document.getElementById("admin-list");
+        if (!adminList) return;
+        const query = document.getElementById("admin-search").value.trim().toLocaleLowerCase("ru");
+        const type = document.getElementById("admin-type-filter").value;
+        const changedIds = new Set(savedData.records.map(item => item.id));
+        const shown = institutions.filter(item =>
+          (type === "all" || item.type === type) &&
+          (!query || `${item.name} ${item.city} ${item.concept || ""}`.toLocaleLowerCase("ru").includes(query))
+        ).sort((a, b) => a.name.localeCompare(b.name, "ru"));
+
+        document.getElementById("admin-catalog-count").textContent = `Показано ${shown.length} из ${institutions.length}`;
+        adminList.innerHTML = shown.length ? shown.map(item => `
+          <div class="admin-row" data-id="${escapeHtml(item.id)}">
+            <div class="admin-object"><strong>${escapeHtml(item.name)}</strong><span>${escapeHtml(item.city)} · ${escapeHtml(statuses[item.status]?.label || item.status)}</span></div>
+            <span class="admin-badge ${changedIds.has(item.id) ? "changed" : ""}">${changedIds.has(item.id) ? "Изменён" : escapeHtml(categoryLabel(item.type))}</span>
+            <span class="admin-year">${escapeHtml(item.year)}</span>
+            <div class="admin-row-actions">
+              <button class="admin-mini" type="button" data-action="edit">Править</button>
+              <button class="admin-mini" type="button" data-action="duplicate">Копия</button>
+              <button class="admin-mini danger" type="button" data-action="delete">Удалить</button>
+            </div>
+          </div>`).join("") : `<div class="admin-empty">По заданным условиям объекты не найдены.</div>`;
+      }
+
+      function syncMarkers() {
+        markers.forEach(marker => map.geoObjects.remove(marker));
+        markers.clear();
+        institutions.forEach(institution => {
+          const marker = new ymaps.Placemark(institution.coords, {
+            iconContent: ({ library: "Б", museum: "М", winner: "★" })[institution.type] || categoryLabel(institution.type).slice(0, 1).toLocaleUpperCase("ru"),
+            balloonContent: popupHtml(institution)
+          }, markerOptions(institution, institution.id === selectedId));
+          marker.events.add("click", () => {
+            if (embeddedMap) {
+              window.parent.postMessage({ cultureMap: "select", id: institution.id }, "*");
+            } else selectInstitution(institution, false);
+          });
+          map.geoObjects.add(marker);
+          markers.set(institution.id, marker);
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
+      }
+
+      function safeUrl(value) {
+        try {
+          const url = new URL(value, location.href);
+          return ["http:", "https:", "data:"].includes(url.protocol) ? url.href : "";
+        } catch (error) {
+          return "";
+        }
+      }
+
+      function markerOptions(institution, selected) {
+        const colors = { open: "#e87945", progress: "#6d9fb2", planned: "#9d7bc1", renovated: "#c38a32", equipped: "#6d9fb2", repaired: "#c38a32", "museum-both": "#174c40", winner: "#9d7bc1", active: "#174c40" };
+        return {
+          preset: selected ? "islands#circleDotIcon" : "islands#circleIcon",
+          iconColor: colors[institution.status] || "#e87945",
+          hideIconOnBalloonOpen: false,
+          openBalloonOnClick: !embeddedMap
+        };
+      }
+
+      function popupHtml(institution) {
+        return `<img class="popup-photo" src="${escapeHtml(safeUrl(institution.photos[0]) || placeholderPhoto)}" alt=""><div class="popup-body"><small>${escapeHtml(institution.city)} · ${escapeHtml(institution.year)}</small><h3>${escapeHtml(institution.name)}</h3><button class="popup-button" onclick="openInstitution('${escapeHtml(institution.id)}')">Открыть карточку</button></div>`;
+      }
+
+      function filteredInstitutions() {
+        const query = search.value.trim().toLocaleLowerCase("ru");
+        return institutions.filter(item => {
+          const typeMatch = item.type === activeType;
+          const statusMatch = activeFilter === "all" || item.status === activeFilter || item.upgradeTypes?.includes(activeFilter);
+          const searchMatch = !query || `${item.city} ${item.name} ${item.concept}`.toLocaleLowerCase("ru").includes(query);
+          return typeMatch && statusMatch && searchMatch && (!favoritesOnly || favorites.has(item.id));
+        });
+      }
+
+      function renderList() {
+        const shown = filteredInstitutions();
+        const favoriteFilter = document.getElementById("favorites-filter");
+        favoriteFilter.textContent = `${favoritesOnly ? "★" : "☆"} Избранное (${institutions.filter(item => item.type === activeType && favorites.has(item.id)).length})`;
+        favoriteFilter.classList.toggle("active", favoritesOnly);
+        favoriteFilter.setAttribute("aria-pressed", String(favoritesOnly));
+        document.getElementById("surprise-object").disabled = shown.length === 0;
+        document.getElementById("fit-results").disabled = shown.length === 0;
+        resultCount.textContent = `Показано объектов: ${shown.length}`;
+        list.innerHTML = shown.length ? shown.map(institution => `
+          <div class="card-row"><button class="library-card ${selectedId === institution.id ? "active" : ""}" data-id="${escapeHtml(institution.id)}" type="button">
+            <img class="card-photo" src="${escapeHtml(safeUrl(institution.photos[0]) || placeholderPhoto)}" alt="" loading="lazy">
+            <div>
+              <div class="card-meta"><span class="dot ${statuses[institution.status].card}"></span>${escapeHtml(statuses[institution.status].label)} · ${escapeHtml(institution.year)}</div>
+              <h3>${escapeHtml(institution.name)}</h3>
+              <p>${escapeHtml(institution.city)} · ${escapeHtml(institution.concept)}</p>
+            </div>
+          </button><button class="favorite-button ${favorites.has(institution.id) ? "active" : ""}" data-favorite="${escapeHtml(institution.id)}" type="button" aria-label="${favorites.has(institution.id) ? "Убрать из избранного" : "Добавить в избранное"}: ${escapeHtml(institution.name)}" aria-pressed="${favorites.has(institution.id)}" title="${favorites.has(institution.id) ? "Убрать из избранного" : "Добавить в избранное"}">${favorites.has(institution.id) ? "★" : "☆"}</button></div>`).join("") : `<div class="empty">Ничего не найдено.<br>Попробуйте изменить запрос или фильтры.</div>`;
+
+        list.querySelectorAll(".library-card").forEach(card => {
+          card.addEventListener("click", () => {
+            const institution = institutions.find(item => item.id === card.dataset.id);
+            selectInstitution(institution, true);
+          });
+        });
+        list.querySelectorAll(".favorite-button").forEach(button => button.addEventListener("click", () => {
+          const id = button.dataset.favorite;
+          if (favorites.has(id)) favorites.delete(id);
+          else favorites.add(id);
+          try { localStorage.setItem(favoritesKey, JSON.stringify([...favorites])); } catch (error) { /* The selection remains available until this page closes. */ }
+          renderList();
+        }));
+
+        const shownIds = new Set(shown.map(item => item.id));
+        institutions.forEach(item => {
+          const marker = markers.get(item.id);
+          if (shownIds.has(item.id)) {
+            if (map.geoObjects.indexOf(marker) === -1) map.geoObjects.add(marker);
+          } else if (map.geoObjects.indexOf(marker) !== -1) {
+            map.geoObjects.remove(marker);
+          }
+        });
+      }
+
+      function selectInstitution(institution, moveMap) {
+        selectedId = institution.id;
+        institutions.forEach(item => markers.get(item.id)?.options.set(markerOptions(item, item.id === selectedId)));
+        renderList();
+        if (moveMap) {
+          map.setCenter(institution.coords, Math.max(map.getZoom(), 10), { duration: 500 });
+          markers.get(institution.id).balloon.open();
+        }
+        requestAnimationFrame(() => list.querySelector(`[data-id="${institution.id}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+      }
+
+      function bindFilterButtons() {
+        filters.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
+          activeFilter = button.dataset.filter;
+          filters.querySelectorAll(".filter").forEach(item => item.classList.toggle("active", item === button));
+          renderList();
+        }));
+      }
+
+      function setActiveType(type) {
+        activeType = type;
+        activeFilter = "all";
+        selectedId = null;
+        search.value = "";
+        closeModal();
+
+        document.querySelectorAll(".type-tab").forEach(button => {
+          const active = button.dataset.type === type;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-selected", String(active));
+        });
+
+        const statCards = document.querySelectorAll(".stat");
+        if (type === "library") {
+          document.title = "Карта модельных библиотек ЛНР";
+          document.getElementById("hero-title").textContent = "Модельные библиотеки ЛНР";
+          document.getElementById("hero-intro").textContent = "Современные пространства для чтения, творчества и общения. Выберите точку на карте, чтобы посмотреть официальные фотографии и совершить короткую видеоэкскурсию.";
+          search.placeholder = "Найти город или библиотеку";
+          filters.innerHTML = `<button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="open">Открытые</button><button class="filter" data-filter="progress">Ожидаются в 2026</button><button class="filter" data-filter="planned">Откроются в 2027</button>`;
+          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot"></span><span>Открыта</span></div><div class="legend-item"><span class="legend-dot progress"></span><span>Ожидается в 2026</span></div><div class="legend-item"><span class="legend-dot planned"></span><span>Откроется в 2027</span></div>`;
+          const counts = libraries.reduce((acc, item) => ({ ...acc, [item.status]: (acc[item.status] || 0) + 1 }), {});
+          [[counts.open || 0, "открыто"], [counts.progress || 0, "ожидаются в 2026"], [counts.planned || 0, "отбор 2027"]].forEach(([value, label], index) => {
+            statCards[index].querySelector("strong").textContent = value;
+            statCards[index].querySelector("span").textContent = label;
+          });
+          programSummary.hidden = true;
+          datasetNote.hidden = true;
+        } else if (type === "winner") {
+          document.title = "Лучшие сельские учреждения культуры ЛНР";
+          document.getElementById("hero-title").textContent = "Лучшие сельские учреждения культуры ЛНР";
+          document.getElementById("hero-intro").textContent = "Пять поимённо названных победителей конкурса на денежное поощрение в 2027 году. Выберите точку, чтобы узнать об учреждении и перейти к официальным итогам отбора.";
+          search.placeholder = "Найти село или учреждение";
+          filters.innerHTML = `<button class="filter active" data-filter="all">Все победители</button>`;
+          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot winner"></span><span>Победитель отбора на 2027 год</span></div>`;
+          [[winners.length, "учреждений"], [2027, "год поощрения"], [100, "тыс. ₽ каждому"]].forEach(([value, label], index) => {
+            statCards[index].querySelector("strong").textContent = value;
+            statCards[index].querySelector("span").textContent = label;
+          });
+          programSummary.hidden = true;
+          datasetNote.textContent = "На карте только учреждения, прямо названные победителями Минкультуры ЛНР; отбор на 2027 год опубликован 9 июля 2026 года. Фотографии учреждений в публикации не представлены. Метки обозначают населённые пункты, не точные адреса.";
+          datasetNote.hidden = false;
+        } else if (type === "museum") {
+          document.title = "Карта обновлённых музеев ЛНР";
+          document.getElementById("hero-title").textContent = "Обновлённые музеи ЛНР";
+          document.getElementById("hero-intro").textContent = "Музеи, отремонтированные и технически оснащённые в рамках национальных проектов «Культура» и «Семья». Выберите учреждение, чтобы увидеть выполненные работы и официальные фотографии.";
+          search.placeholder = "Найти город или музей";
+          filters.innerHTML = `<button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="equipped">Оснащены</button><button class="filter" data-filter="repaired">Отремонтированы</button>`;
+          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot equipped"></span><span>Оснащён</span></div><div class="legend-item"><span class="legend-dot repaired"></span><span>Отремонтирован</span></div><div class="legend-item"><span class="legend-dot museum-both"></span><span>Оба вида работ</span></div>`;
+          const equippedCount = museums.filter(item => item.upgradeTypes.includes("equipped")).length;
+          const repairedCount = museums.filter(item => item.upgradeTypes.includes("repaired")).length;
+          [[museums.length, "музеев на карте"], [equippedCount, "оснащены"], [repairedCount, "отремонтированы"]].forEach(([value, label], index) => {
+            statCards[index].querySelector("strong").textContent = value;
+            statCards[index].querySelector("span").textContent = label;
+          });
+          programSummary.hidden = true;
+          datasetNote.textContent = "Алчевский и Беловодский музеи входят в обе категории и показаны одной точкой. Кировский музей учтён только как оснащённый: общий капитальный ремонт ещё продолжается.";
+          datasetNote.hidden = false;
+        } else {
+          const category = allCategories().find(item => item.id === type);
+          const categoryInstitutions = institutions.filter(item => item.type === type);
+          const years = categoryInstitutions.map(item => Number(item.year)).filter(Number.isFinite);
+          document.title = `${category?.label || "Учреждения"} · Культурная карта ЛНР`;
+          document.getElementById("hero-title").textContent = `${category?.label || "Учреждения"} ЛНР`;
+          document.getElementById("hero-intro").textContent = "Пользовательский раздел культурной карты. Добавляйте учреждения и актуализируйте сведения через панель администратора.";
+          search.placeholder = `Найти объект во вкладке «${category?.label || "Учреждения"}»`;
+          filters.innerHTML = `<button class="filter active" data-filter="all">Все объекты</button><button class="filter" data-filter="active">Действующие</button>`;
+          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot active"></span><span>Действует</span></div>`;
+          [[categoryInstitutions.length, "объектов"], [new Set(categoryInstitutions.map(item => item.city)).size, "населённых пунктов"], [years.length ? Math.max(...years) : "—", "последний год"]].forEach(([value, label], index) => {
+            statCards[index].querySelector("strong").textContent = value;
+            statCards[index].querySelector("span").textContent = label;
+          });
+          programSummary.hidden = true;
+          datasetNote.textContent = "Это пользовательская вкладка. Её объекты и сведения сохраняются в локальных данных администратора и включаются в экспорт.";
+          datasetNote.hidden = false;
+        }
+
+        bindFilterButtons();
+        renderList();
+        showLnr();
+      }
+
+      function openModal(library) {
+        stopTour();
+        activeLibrary = library;
+        photoIndex = 0;
+        const status = statuses[library.status];
+        document.getElementById("modal-status").innerHTML = `<span class="dot ${status.card}"></span>${escapeHtml(status.label)} · ${escapeHtml(library.year)}`;
+        document.getElementById("modal-title").textContent = library.name;
+        document.getElementById("modal-location").innerHTML = `<span>⌖</span><span>${escapeHtml(library.city)}, Луганская Народная Республика</span>`;
+        document.getElementById("modal-description").textContent = library.description;
+        const details = [
+          ["Дата или срок", library.timing || openingDetails[library.id] || `Сведения за ${library.year} год`],
+          ["Адрес", library.address || `${library.city}, ЛНР; точный адрес не опубликован`],
+          ...(library.project ? [["Программа / проект", library.project]] : []),
+          ["Режим работы", library.hours || (["progress", "planned"].includes(library.status) ? "Будет известен после открытия" : "Не опубликован в доступных источниках")],
+          ["Контакты", library.contacts || "Не опубликованы в доступных источниках"]
+        ];
+        document.getElementById("modal-details").innerHTML = details.map(([label, value]) => `<div class="detail"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("");
+        document.getElementById("modal-features").innerHTML = library.features.map(item => `<span>${escapeHtml(item)}</span>`).join("");
+        document.getElementById("gallery-title").style.display = library.photoAvailable === false ? "none" : "flex";
+        document.getElementById("gallery-count").textContent = library.photoAvailable === false ? "Фото не опубликованы" : `${library.photos.length} фото`;
+        const articles = library.articles || (library.article ? [{ label: "Читать публикацию", url: library.article }] : []);
+        document.getElementById("article-links").innerHTML = articles.filter(article => safeUrl(article.url)).map(article => `<a class="source-button" href="${escapeHtml(safeUrl(article.url))}" target="_blank" rel="noopener"><span>${escapeHtml(article.label)}</span><span>↗</span></a>`).join("");
+        const sourceNote = document.getElementById("source-note");
+        sourceNote.textContent = library.photoAvailable === false ? "Сведения подтверждены публикацией по ссылке. Фотографии учреждения не опубликованы; на месте снимка показана иллюстрация." : "Фото и сведения взяты из официальных публикаций, указанных в карточке. Видеоэкскурсия собрана из кадров фотогалереи источника.";
+        sourceNote.style.display = articles.length ? "block" : "none";
+        document.getElementById("media-title").textContent = library.concept;
+        document.getElementById("thumbnails").innerHTML = library.photoAvailable === false ? "" : library.photos.map((photo, index) => `<button class="thumbnail ${index === 0 ? "active" : ""}" data-index="${index}"><img src="${escapeHtml(safeUrl(photo) || placeholderPhoto)}" alt="Фото ${index + 1}" loading="lazy"></button>`).join("");
+        document.getElementById("tour-progress").innerHTML = library.photos.map(() => `<span><i></i></span>`).join("");
+        document.getElementById("play-tour").style.display = library.photos.length > 1 ? "flex" : "none";
+        document.getElementById("tour-progress").style.display = library.photos.length > 1 ? "flex" : "none";
+        document.getElementById("thumbnails").querySelectorAll(".thumbnail").forEach(button => button.addEventListener("click", () => {
+          stopTour();
+          showPhoto(Number(button.dataset.index));
+        }));
+        showPhoto(0);
+        document.querySelector(".modal-content").scrollTop = 0;
+        document.querySelector(".modal-panel").scrollTop = 0;
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function showPhoto(index) {
+        if (!activeLibrary) return;
+        photoIndex = index;
+        const photo = document.getElementById("main-photo");
+        photo.style.opacity = "0";
+        setTimeout(() => {
+          photo.src = safeUrl(activeLibrary.photos[photoIndex]) || placeholderPhoto;
+          photo.alt = activeLibrary.photoAvailable === false ? "Иллюстрация: лучшие сельские учреждения" : `${activeLibrary.name}, фото ${photoIndex + 1}`;
+          photo.style.opacity = "1";
+        }, 130);
+        document.getElementById("media-counter").textContent = activeLibrary.photoAvailable === false ? "Фотографии не опубликованы" : `Кадр ${photoIndex + 1} из ${activeLibrary.photos.length}`;
+        document.querySelectorAll(".thumbnail").forEach((thumb, i) => thumb.classList.toggle("active", i === photoIndex));
+        updateTourProgress();
+      }
+
+      function startTour() {
+        if (!activeLibrary || activeLibrary.photos.length < 2) return;
+        document.getElementById("media-pane").classList.add("playing");
+        document.getElementById("play-icon").textContent = "Ⅱ";
+        document.getElementById("play-text").textContent = "Пауза";
+        updateTourProgress(true);
+        tourTimer = setInterval(() => {
+          showPhoto((photoIndex + 1) % activeLibrary.photos.length);
+          document.getElementById("media-pane").classList.remove("playing");
+          void document.getElementById("media-pane").offsetWidth;
+          document.getElementById("media-pane").classList.add("playing");
+          updateTourProgress(true);
+        }, 4000);
+      }
+
+      function stopTour() {
+        clearInterval(tourTimer);
+        tourTimer = null;
+        document.getElementById("media-pane")?.classList.remove("playing");
+        const icon = document.getElementById("play-icon");
+        if (icon) icon.textContent = "▶";
+        const text = document.getElementById("play-text");
+        if (text) text.textContent = "Видеоэкскурсия";
+        updateTourProgress();
+      }
+
+      function updateTourProgress(playing = false) {
+        document.querySelectorAll("#tour-progress span").forEach((bar, index) => {
+          bar.className = index < photoIndex ? "done" : index === photoIndex && playing ? "current" : "";
+        });
+      }
+
+      function closeModal() {
+        stopTour();
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      const editorModal = document.getElementById("editor-modal");
+      const editorForm = document.getElementById("editor-form");
+      const editorFields = {
+        type: document.getElementById("editor-type"), status: document.getElementById("editor-status"), name: document.getElementById("editor-name"),
+        city: document.getElementById("editor-city"), year: document.getElementById("editor-year"), lat: document.getElementById("editor-lat"), lon: document.getElementById("editor-lon"),
+        address: document.getElementById("editor-address"), timing: document.getElementById("editor-timing"), project: document.getElementById("editor-project"), hours: document.getElementById("editor-hours"), contacts: document.getElementById("editor-contacts"),
+        concept: document.getElementById("editor-concept"), description: document.getElementById("editor-description"), features: document.getElementById("editor-features"), photos: document.getElementById("editor-photos"), article: document.getElementById("editor-article")
+      };
+      const statusOptions = {
+        library: [["open", "Открыта"], ["progress", "Ожидается в 2026"], ["planned", "Откроется в 2027"]],
+        museum: [["equipped", "Оснащён"], ["repaired", "Отремонтирован"], ["museum-both", "Оснащён и отремонтирован"]],
+        winner: [["winner", "Победитель конкурса"]]
+      };
+
+      function statusesFor(type) {
+        return statusOptions[type] || [["active", "Действует"]];
+      }
+
+      function updateEditorStatuses(status = "") {
+        const options = statusesFor(editorFields.type.value);
+        editorFields.status.innerHTML = options.map(([value, label]) => `<option value="${value}">${label}</option>`).join("");
+        if (options.some(([value]) => value === status)) editorFields.status.value = status;
+      }
+
+      function openEditor(institution = null) {
+        if (!adminMode) return;
+        editingId = institution?.id || null;
+        document.getElementById("editor-title").textContent = institution ? "Редактировать объект" : "Новый объект";
+        editorFields.type.value = institution?.type || activeType;
+        updateEditorStatuses(institution?.status || statusesFor(editorFields.type.value)[0][0]);
+        editorFields.name.value = institution?.name || "";
+        editorFields.city.value = institution?.city || "";
+        editorFields.year.value = institution?.year || new Date().getFullYear();
+        editorFields.lat.value = institution?.coords?.[0] ?? "";
+        editorFields.lon.value = institution?.coords?.[1] ?? "";
+        editorFields.address.value = institution?.address || "";
+        editorFields.timing.value = institution?.timing || openingDetails[institution?.id] || "";
+        editorFields.project.value = institution?.project || "";
+        editorFields.hours.value = institution?.hours || "";
+        editorFields.contacts.value = institution?.contacts || "";
+        editorFields.concept.value = institution?.concept || "";
+        editorFields.description.value = institution?.description || "";
+        editorFields.features.value = institution?.features?.join(", ") || "";
+        editorFields.photos.value = institution?.photos?.filter(photo => photo !== placeholderPhoto && photo !== awardPlaceholder).join("\n") || "";
+        editorFields.article.value = institution?.articles?.map(item => `${item.label || "Читать публикацию"} | ${item.url}`).join("\n") || institution?.article || "";
+        editorModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeEditor() {
+        editorModal.classList.remove("open");
+        document.body.style.overflow = "";
+        placementMode = false;
+        document.getElementById("placement-hint").classList.remove("show");
+      }
+
+      function formInstitution() {
+        const photos = editorFields.photos.value.split("\n").map(item => safeUrl(item.trim())).filter(Boolean);
+        const articles = editorFields.article.value.split("\n").map(line => {
+          const separator = line.indexOf("|");
+          const label = separator >= 0 ? line.slice(0, separator).trim() : "Читать публикацию";
+          const url = safeUrl((separator >= 0 ? line.slice(separator + 1) : line).trim());
+          return url ? { label: label || "Читать публикацию", url } : null;
+        }).filter(Boolean);
+        return {
+          id: editingId || `custom-${Date.now()}`,
+          type: editorFields.type.value,
+          status: editorFields.status.value,
+          city: editorFields.city.value.trim(),
+          coords: [Number(editorFields.lat.value), Number(editorFields.lon.value)],
+          year: Number(editorFields.year.value),
+          address: editorFields.address.value.trim(),
+          timing: editorFields.timing.value.trim(),
+          project: editorFields.project.value.trim(),
+          hours: editorFields.hours.value.trim(),
+          contacts: editorFields.contacts.value.trim(),
+          name: editorFields.name.value.trim(),
+          concept: editorFields.concept.value.trim() || "Информация об учреждении",
+          description: editorFields.description.value.trim() || "Описание пока не добавлено.",
+          features: editorFields.features.value.split(",").map(item => item.trim()).filter(Boolean),
+          articles,
+          photos: photos.length ? photos : [editorFields.type.value === "winner" ? awardPlaceholder : placeholderPhoto],
+          photoAvailable: photos.length > 0
+        };
+      }
+
+      function toast(message) {
+        const node = document.getElementById("toast");
+        node.textContent = message;
+        node.classList.add("show");
+        setTimeout(() => node.classList.remove("show"), 2800);
+      }
+
+      function exportData() {
+        if (!adminMode) return;
+        const blob = new Blob([JSON.stringify({
+          version: 3,
+          exportedAt: new Date().toISOString(),
+          records: savedData.records,
+          deleted: savedData.deleted,
+          categories: savedData.categories
+        }, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `karta-uchrezhdenij-${new Date().toISOString().slice(0, 10)}.json`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+        toast("JSON-файл подготовлен");
+      }
+
+      function downloadFile(content, type, filename) {
+        const blob = new Blob(["\ufeff", content], { type });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 0);
+      }
+
+      function sourceList(institution) {
+        return institution.articles || (institution.article ? [{ label: "Источник", url: institution.article }] : []);
+      }
+
+      function exportExcel() {
+        if (!adminMode) return;
+        const columns = [
+          ["Раздел", item => categoryLabel(item.type)],
+          ["Название", item => item.name],
+          ["Населённый пункт", item => item.city],
+          ["Статус", item => statuses[item.status]?.label || item.status],
+          ["Год", item => item.year],
+          ["Широта", item => item.coords[0]],
+          ["Долгота", item => item.coords[1]],
+          ["Адрес", item => item.address || ""],
+          ["Дата или срок", item => item.timing || openingDetails[item.id] || ""],
+          ["Программа или проект", item => item.project || ""],
+          ["Режим работы", item => item.hours || ""],
+          ["Контакты", item => item.contacts || ""],
+          ["Подзаголовок", item => item.concept || ""],
+          ["Описание", item => item.description || ""],
+          ["Особенности", item => item.features.join("; ")],
+          ["Источники", item => sourceList(item).map(source => `${source.label}: ${source.url}`).join("; ")],
+          ["Фотографии", item => item.photoAvailable === false ? "Не опубликованы" : item.photos.join("; ")]
+        ];
+        const cell = value => `<Cell><Data ss:Type="String">${escapeHtml(value)}</Data></Cell>`;
+        const rows = [
+          `<Row>${columns.map(([title]) => cell(title)).join("")}</Row>`,
+          ...institutions.map(item => `<Row>${columns.map(([, getValue]) => cell(getValue(item))).join("")}</Row>`)
+        ].join("");
+        const xml = `<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel"><Styles><Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#DDEBE4" ss:Pattern="Solid"/></Style></Styles><Worksheet ss:Name="Учреждения"><Table>${rows.replace("<Row>", '<Row ss:StyleID="Header">')}</Table><AutoFilter xmlns="urn:schemas-microsoft-com:office:excel" x:Range="R1C1:R1C17"/></Worksheet></Workbook>`;
+        downloadFile(xml, "application/vnd.ms-excel;charset=utf-8", `karta-uchrezhdenij-${new Date().toISOString().slice(0, 10)}.xls`);
+        toast(`Для Excel выгружено объектов: ${institutions.length}`);
+      }
+
+      function exportWord() {
+        if (!adminMode) return;
+        const generated = new Date().toLocaleString("ru-RU");
+        const cards = institutions.map((item, index) => {
+          const sources = sourceList(item).filter(source => safeUrl(source.url));
+          const photos = item.photoAvailable === false ? [] : item.photos.map(safeUrl).filter(Boolean);
+          return `<section class="object"><h2>${index + 1}. ${escapeHtml(item.name)}</h2><p class="meta">${escapeHtml(categoryLabel(item.type))} · ${escapeHtml(item.city)} · ${escapeHtml(statuses[item.status]?.label || item.status)} · ${escapeHtml(item.year)}</p><table><tr><th>Координаты</th><td>${escapeHtml(item.coords.join(", "))}</td></tr><tr><th>Адрес</th><td>${escapeHtml(item.address || "Не указан")}</td></tr><tr><th>Дата или срок</th><td>${escapeHtml(item.timing || openingDetails[item.id] || "Не указаны")}</td></tr><tr><th>Программа / проект</th><td>${escapeHtml(item.project || "Не указаны")}</td></tr><tr><th>Режим работы</th><td>${escapeHtml(item.hours || "Не указан")}</td></tr><tr><th>Контакты</th><td>${escapeHtml(item.contacts || "Не указаны")}</td></tr></table><h3>${escapeHtml(item.concept || "Описание")}</h3><p>${escapeHtml(item.description || "Описание не добавлено.")}</p>${item.features.length ? `<p><strong>Особенности:</strong> ${escapeHtml(item.features.join("; "))}</p>` : ""}${sources.length ? `<p><strong>Источники:</strong> ${sources.map(source => `<a href="${escapeHtml(safeUrl(source.url))}">${escapeHtml(source.label)}</a>`).join("; ")}</p>` : ""}${photos.length ? `<p><strong>Фотографии:</strong> ${photos.map((photo, photoIndex) => `<a href="${escapeHtml(photo)}">Фото ${photoIndex + 1}</a>`).join("; ")}</p>` : ""}</section>`;
+        }).join("");
+        const html = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><title>Данные культурной карты ЛНР</title><style>body{font-family:Arial,sans-serif;color:#16342d;line-height:1.5;margin:36px}h1{font-size:28px}h2{font-size:19px;margin:0 0 5px}h3{font-size:14px;margin:14px 0 5px}.lead,.meta{color:#6d7772}.object{margin:0 0 24px;padding:0 0 20px;border-bottom:1px solid #ccd6d1;page-break-inside:avoid}table{width:100%;border-collapse:collapse;margin:12px 0}th,td{padding:6px 8px;border:1px solid #d8dedb;text-align:left;font-size:11px}th{width:170px;background:#edf2e9}p{font-size:11px}a{color:#174c40}</style></head><body><h1>Данные культурной карты ЛНР</h1><p class="lead">Объектов: ${institutions.length}. Сформировано: ${escapeHtml(generated)}.</p>${cards}</body></html>`;
+        downloadFile(html, "application/msword;charset=utf-8", `karta-uchrezhdenij-${new Date().toISOString().slice(0, 10)}.doc`);
+        toast(`Для Word выгружено объектов: ${institutions.length}`);
+      }
+
+      const adminModal = document.getElementById("admin-modal");
+      const adminToggle = document.getElementById("admin-toggle");
+
+      function updateModeUrl(mode) {
+        try {
+          const url = new URL(location.href);
+          if (mode === "admin") url.searchParams.set("mode", "admin");
+          else url.searchParams.delete("mode");
+          url.hash = "";
+          history.replaceState(null, "", url);
+        } catch (error) {
+          // The mode still works when a browser blocks history updates for local files.
+        }
+      }
+
+      function enableAdminMode(updateUrl = true) {
+        adminMode = true;
+        document.body.classList.add("admin-mode");
+        adminToggle.classList.add("active");
+        renderCategoryControls();
+        updateAdminSummary();
+        if (updateUrl) updateModeUrl("admin");
+        setTimeout(() => map.container.fitToViewport(), 50);
+      }
+
+      function openAdmin() {
+        enableAdminMode();
+        adminModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeAdmin() {
+        adminModal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      function exitAdmin() {
+        closeAdmin();
+        closeEditor();
+        closeModal();
+        adminMode = false;
+        document.body.classList.remove("admin-mode");
+        adminToggle.classList.remove("active");
+        updateModeUrl("view");
+        renderList();
+        setTimeout(() => map.container.fitToViewport(), 50);
+        toast("Включён режим просмотра");
+      }
+
+      function deleteInstitution(institution) {
+        if (!adminMode || !institution || !confirm(`Удалить объект «${institution.name}»?`)) return;
+        if (!savedData.deleted.includes(institution.id)) savedData.deleted.push(institution.id);
+        savedData.records = savedData.records.filter(item => item.id !== institution.id);
+        persistData();
+        institutions = buildInstitutions();
+        selectedId = null;
+        if (activeLibrary?.id === institution.id) closeModal();
+        syncMarkers();
+        renderList();
+        updateAdminSummary();
+        toast("Объект удалён");
+      }
+
+      function duplicateInstitution(institution) {
+        if (!adminMode || !institution) return;
+        const copy = {
+          ...institution,
+          id: `custom-${Date.now()}`,
+          name: `${institution.name} (копия)`,
+          coords: [institution.coords[0] + 0.002, institution.coords[1] + 0.002],
+          features: [...institution.features],
+          photos: [...institution.photos],
+          articles: institution.articles?.map(article => ({ ...article }))
+        };
+        savedData.records.push(copy);
+        persistData();
+        institutions = buildInstitutions();
+        syncMarkers();
+        renderList();
+        updateAdminSummary();
+        toast("Копия объекта создана");
+      }
+
+      function addCategory(label) {
+        if (!adminMode) return;
+        const normalized = label.trim();
+        if (!normalized) return;
+        if (allCategories().some(category => category.label.toLocaleLowerCase("ru") === normalized.toLocaleLowerCase("ru"))) {
+          toast("Вкладка с таким названием уже существует");
+          return;
+        }
+        savedData.categories.push({ id: `custom-type-${Date.now()}`, label: normalized, singular: normalized });
+        persistData();
+        renderCategoryControls();
+        updateAdminSummary();
+        document.getElementById("category-name").value = "";
+        toast(`Вкладка «${normalized}» добавлена`);
+      }
+
+      function deleteCategory(categoryId) {
+        if (!adminMode) return;
+        const category = savedData.categories.find(item => item.id === categoryId);
+        if (!category) return;
+        const categoryObjects = institutions.filter(item => item.type === categoryId);
+        const warning = categoryObjects.length
+          ? `Удалить вкладку «${category.label}» и ${categoryObjects.length} связанных объектов?`
+          : `Удалить вкладку «${category.label}»?`;
+        if (!confirm(warning)) return;
+        savedData.categories = savedData.categories.filter(item => item.id !== categoryId);
+        savedData.records = savedData.records.filter(item => item.type !== categoryId);
+        persistData();
+        institutions = buildInstitutions();
+        if (activeType === categoryId) activeType = "library";
+        renderCategoryControls();
+        syncMarkers();
+        setActiveType(activeType);
+        updateAdminSummary();
+        toast("Вкладка удалена");
+      }
+
+      adminToggle.addEventListener("click", openAdmin);
+      document.getElementById("admin-toggle-mobile").addEventListener("click", openAdmin);
+      document.getElementById("admin-open-panel").addEventListener("click", openAdmin);
+      document.getElementById("admin-view-mode").addEventListener("click", exitAdmin);
+      document.getElementById("admin-close").addEventListener("click", closeAdmin);
+      document.getElementById("exit-admin").addEventListener("click", exitAdmin);
+      adminModal.addEventListener("click", event => { if (event.target === adminModal) closeAdmin(); });
+      document.getElementById("admin-search").addEventListener("input", renderAdminCatalog);
+      document.getElementById("admin-type-filter").addEventListener("change", renderAdminCatalog);
+      document.getElementById("admin-list").addEventListener("click", event => {
+        const action = event.target.closest("[data-action]")?.dataset.action;
+        const id = event.target.closest(".admin-row")?.dataset.id;
+        const institution = institutions.find(item => item.id === id);
+        if (!action || !institution) return;
+        if (action === "edit") { closeAdmin(); openEditor(institution); }
+        if (action === "duplicate") duplicateInstitution(institution);
+        if (action === "delete") deleteInstitution(institution);
+      });
+      document.getElementById("category-form").addEventListener("submit", event => {
+        event.preventDefault();
+        addCategory(document.getElementById("category-name").value);
+      });
+      document.getElementById("category-list").addEventListener("click", event => {
+        const categoryId = event.target.closest("[data-category-delete]")?.dataset.categoryDelete;
+        if (categoryId) deleteCategory(categoryId);
+      });
+      document.getElementById("add-object").addEventListener("click", () => { closeAdmin(); openEditor(); });
+      document.getElementById("editor-close").addEventListener("click", closeEditor);
+      editorModal.addEventListener("click", event => { if (event.target === editorModal) closeEditor(); });
+      editorFields.type.addEventListener("change", () => updateEditorStatuses());
+      document.getElementById("edit-object").addEventListener("click", () => { if (adminMode && activeLibrary) { closeModal(); openEditor(activeLibrary); } });
+      document.getElementById("delete-object").addEventListener("click", () => {
+        deleteInstitution(activeLibrary);
+      });
+      editorForm.addEventListener("submit", event => {
+        event.preventDefault();
+        if (!adminMode) return;
+        const institution = formInstitution();
+        const index = savedData.records.findIndex(item => item.id === institution.id);
+        if (index >= 0) savedData.records[index] = institution;
+        else savedData.records.push(institution);
+        savedData.deleted = savedData.deleted.filter(id => id !== institution.id);
+        persistData();
+        institutions = buildInstitutions();
+        updateAdminSummary();
+        syncMarkers();
+        closeEditor();
+        setActiveType(institution.type);
+        selectedId = institution.id;
+        renderList();
+        toast("Данные сохранены в браузере");
+      });
+      document.getElementById("export-data").addEventListener("click", exportData);
+      document.getElementById("export-excel").addEventListener("click", exportExcel);
+      document.getElementById("export-word").addEventListener("click", exportWord);
+      document.getElementById("import-data").addEventListener("click", () => document.getElementById("import-file").click());
+      document.getElementById("import-file").addEventListener("change", async event => {
+        if (!adminMode) return;
+        const file = event.target.files[0];
+        if (!file) return;
+        try {
+          const imported = JSON.parse(await file.text());
+          const records = Array.isArray(imported) ? imported : imported.records;
+          if (!Array.isArray(records)) throw new Error("invalid");
+          const categories = Array.isArray(imported.categories)
+            ? imported.categories
+              .filter(item => item && typeof item.id === "string" && typeof item.label === "string" && !systemCategories.some(system => system.id === item.id))
+              .map(item => ({ id: item.id, label: item.label, singular: typeof item.singular === "string" ? item.singular : item.label }))
+            : [];
+          const allowedTypes = new Set([...systemCategories.map(item => item.id), ...categories.map(item => item.id)]);
+          const validRecords = records.every(item =>
+            item && typeof item.id === "string" && typeof item.name === "string" &&
+            allowedTypes.has(item.type) && statusesFor(item.type).some(([status]) => status === item.status) &&
+            Array.isArray(item.coords) && item.coords.length === 2 && item.coords.every(Number.isFinite) &&
+            Array.isArray(item.features) && Array.isArray(item.photos)
+          );
+          if (!validRecords) throw new Error("invalid");
+          const deleted = Array.isArray(imported.deleted)
+            ? imported.deleted.filter(id => typeof id === "string")
+            : baseInstitutions.filter(item => !records.some(record => record.id === item.id)).map(item => item.id);
+          savedData = { records, deleted, categories };
+          persistData();
+          institutions = buildInstitutions();
+          if (!allCategories().some(category => category.id === activeType)) activeType = "library";
+          renderCategoryControls();
+          syncMarkers();
+          setActiveType(activeType);
+          updateAdminSummary();
+          toast(`Импортировано объектов: ${records.length}`);
+        } catch (error) {
+          toast("Не удалось прочитать JSON-файл");
+        }
+        event.target.value = "";
+      });
+      document.getElementById("reset-data").addEventListener("click", () => {
+        if (!adminMode) return;
+        if (!confirm("Отменить все изменения в этом браузере и восстановить исходные данные карты?")) return;
+        savedData = { records: [], deleted: [], categories: [] };
+        localStorage.removeItem(storageKey);
+        institutions = buildInstitutions();
+        activeType = "library";
+        selectedId = null;
+        renderCategoryControls();
+        syncMarkers();
+        setActiveType(activeType);
+        updateAdminSummary();
+        toast("Исходные данные восстановлены");
+      });
+      document.getElementById("pick-position").addEventListener("click", () => {
+        if (!adminMode) return;
+        editorModal.classList.remove("open");
+        document.body.style.overflow = "";
+        placementMode = true;
+        document.getElementById("placement-hint").classList.add("show");
+      });
+      document.getElementById("cancel-placement").addEventListener("click", () => {
+        placementMode = false;
+        document.getElementById("placement-hint").classList.remove("show");
+        editorModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      });
+      map.events.add("click", event => {
+        if (!adminMode || !placementMode) return;
+        const coords = event.get("coords");
+        placementMode = false;
+        document.getElementById("placement-hint").classList.remove("show");
+        editorFields.lat.value = coords[0].toFixed(6);
+        editorFields.lon.value = coords[1].toFixed(6);
+        editorModal.classList.add("open");
+        document.body.style.overflow = "hidden";
+      });
+
+      document.getElementById("institution-tabs").addEventListener("click", event => {
+        const button = event.target.closest(".type-tab");
+        if (button) setActiveType(button.dataset.type);
+      });
+      search.addEventListener("input", renderList);
+      document.getElementById("favorites-filter").addEventListener("click", () => {
+        favoritesOnly = !favoritesOnly;
+        renderList();
+      });
+      document.getElementById("surprise-object").addEventListener("click", () => {
+        const shown = filteredInstitutions();
+        if (shown.length) selectInstitution(shown[Math.floor(Math.random() * shown.length)], true);
+      });
+      document.getElementById("fit-results").addEventListener("click", () => {
+        const shown = filteredInstitutions();
+        if (shown.length === 1) map.setCenter(shown[0].coords, 11, { duration: 500 });
+        else if (shown.length > 1) {
+          const lats = shown.map(item => item.coords[0]);
+          const lons = shown.map(item => item.coords[1]);
+          map.setBounds([[Math.min(...lats), Math.min(...lons)], [Math.max(...lats), Math.max(...lons)]], { checkZoomRange: true, zoomMargin: 55, duration: 500 });
+        }
+      });
+      document.getElementById("modal-close").addEventListener("click", closeModal);
+      document.getElementById("play-tour").addEventListener("click", () => tourTimer ? stopTour() : startTour());
+      modal.addEventListener("click", event => { if (event.target === modal) closeModal(); });
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && adminModal.classList.contains("open")) closeAdmin();
+        if (event.key === "Escape" && editorModal.classList.contains("open")) closeEditor();
+        if (event.key === "Escape" && modal.classList.contains("open")) closeModal();
+        if (!modal.classList.contains("open") || !activeLibrary) return;
+        if (event.key === "ArrowRight") { stopTour(); showPhoto((photoIndex + 1) % activeLibrary.photos.length); }
+        if (event.key === "ArrowLeft") { stopTour(); showPhoto((photoIndex - 1 + activeLibrary.photos.length) % activeLibrary.photos.length); }
+      });
+
+      const requestedType = new URLSearchParams(location.search).get("type");
+      renderCategoryControls();
+      setActiveType(allCategories().some(category => category.id === requestedType) ? requestedType : "library");
+      updateAdminSummary();
+      if (embeddedMap) {
+        const exportForSite = () => window.parent.postMessage({
+          cultureMap: "data",
+          categories: allCategories().map(({ id, label, singular }) => ({ id, label, singular })),
+          places: institutions.map(item => ({
+            id: item.id, type: item.type, name: item.name, city: item.city,
+            coords: item.coords, status: item.status, year: item.year,
+            concept: item.concept, description: item.description,
+            features: item.features, photos: item.photoAvailable === false ? [] : item.photos,
+            article: item.article || item.articles?.[0]?.url || "",
+            address: item.address || "", hours: item.hours || "", contacts: item.contacts || "",
+            timing: item.timing || openingDetails[item.id] || ""
+          }))
+        }, "*");
+        const showEmbedded = ids => {
+          const visible = new Set(ids);
+          markers.forEach((marker, id) => {
+            if (visible.has(id)) {
+              if (map.geoObjects.indexOf(marker) === -1) map.geoObjects.add(marker);
+            } else if (map.geoObjects.indexOf(marker) !== -1) map.geoObjects.remove(marker);
+          });
+        };
+        window.addEventListener("message", event => {
+          if (event.source !== window.parent || event.data?.cultureMap !== "command") return;
+          const { action, ids, id, coords } = event.data;
+          if (action === "data") exportForSite();
+          if (action === "filter" && Array.isArray(ids)) showEmbedded(ids);
+          if (action === "fit" && Array.isArray(ids)) {
+            const points = ids.map(value => institutions.find(item => item.id === value)?.coords).filter(Boolean);
+            if (points.length === 1) map.setCenter(points[0], 11, { duration: 300 });
+            else if (points.length > 1) map.setBounds([
+              [Math.min(...points.map(point => point[0])), Math.min(...points.map(point => point[1]))],
+              [Math.max(...points.map(point => point[0])), Math.max(...points.map(point => point[1]))]
+            ], { checkZoomRange: true, zoomMargin: 55 });
+            else showLnr();
+          }
+          if (action === "select") {
+            const item = institutions.find(entry => entry.id === id);
+            if (item) {
+              selectedId = id;
+              institutions.forEach(entry => markers.get(entry.id)?.options.set(markerOptions(entry, entry.id === id)));
+              map.setCenter(item.coords, Math.max(map.getZoom(), 9), { duration: 300 });
+            }
+          }
+          if (action === "locate" && Array.isArray(coords)) map.setCenter(coords, 10, { duration: 300 });
+          if (action === "resize") map.container.fitToViewport();
+        });
+        showEmbedded(institutions.map(item => item.id));
+        exportForSite();
+      }
+      const requestedMode = new URLSearchParams(location.search).get("mode");
+      if (!embeddedMap && requestedMode === "admin") enableAdminMode(false);
+      if (!embeddedMap && location.hash === "#admin") openAdmin();
+      const refreshMap = () => {
+        map.container.fitToViewport();
+        if (!embeddedMap) showLnr();
+      };
+      window.addEventListener("load", () => setTimeout(refreshMap, 250));
+      new ResizeObserver(() => map.container.fitToViewport()).observe(document.getElementById("map"));
+      setTimeout(refreshMap, 100);
+    });
+  </script>
+</body>
+</html>
