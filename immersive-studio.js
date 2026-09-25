@@ -7,31 +7,66 @@
     {date:'2026-10-10',day:'10',month:'ОКТЯБРЯ',title:'«Моя усатая мама»',time:'11:00 и 13:00',image:'1790239018_nq2vvwivv0o.jpg',description:'Тёплая сказка о любви мамы к своему ребёнку.'},
     {date:'2026-10-11',day:'11',month:'ОКТЯБРЯ',title:'«Птицы»',time:'11:00 и 13:00',image:'1790238965_qngmnisljjs.jpg',description:'Сказка-притча о дружбе, природе и жизни нового леса.'}
   ];
-  const ideas = [
-    {symbol:'✳',place:'АЛЧЕВСК · ИСТОРИЧЕСКИЙ МУЗЕЙ',title:'«Город, который помнит»',format:'Спектакль-маршрут · 35–45 минут',description:'История одной воображаемой семьи проходит через разные эпохи жизни города.',role:'Зритель получает карточку героя и выбирает, какие следы прошлого исследовать.',plot:'В каждом зале актёр передаёт фрагмент семейной истории. У экспонатов участники сопоставляют голоса, фотографии и воспоминания, а в финале составляют общую карту памяти.',source:'https://mk.lpr-reg.ru/14169-v-alchevskom-muzee-posle-remonta-otkrylis-dva-obnovlennyh-jekspozicionnyh-zala.html'},
-    {symbol:'❞',place:'СЛАВЯНОСЕРБСК · БИБЛИОТЕКА',title:'«Между строк»',format:'Литературный квест-спектакль · 30–40 минут',description:'Пропала последняя страница вымышленной книги; чтобы вернуть её, нужно услышать разные версии истории.',role:'Участник становится редактором: слушает героев и решает, какую концовку сохранить.',plot:'Маршрут проходит между книжными полками и читальными зонами. Подсказки спрятаны в текстах, звуках и предметах; общая концовка рождается из решений группы.',source:'https://mk.lpr-reg.ru/14168-v-slavjanoserbske-otkrylas-pervaja-modelnaja-biblioteka.html'},
-    {symbol:'◈',place:'БЕЛОВОДСК · КРАЕВЕДЧЕСКИЙ МУЗЕЙ',title:'«Голоса края»',format:'Аудиоспектакль · 30–40 минут',description:'Вымышленный рассказчик собирает звуковой портрет места по музейным предметам.',role:'Зритель выбирает предмет и добавляет к истории свою ассоциацию или вопрос.',plot:'Свет и звук направляют группу от экспоната к экспонату. Финал — совместная звуковая открытка о том, каким зрители увидели край.',source:'https://mk.lpr-reg.ru/13217-v-belovodske-posle-kapitalnogo-remonta-torzhestvenno-otkrylsja-obnovlennyj-kraevedcheskij-muzej.html'},
-    {symbol:'⌘',place:'АЛЧЕВСК · ИСТОРИЧЕСКИЙ МУЗЕЙ',title:'«Письмо из будущего»',format:'Семейный маршрут · 25–35 минут',description:'Группа получает письмо от воображаемого жителя будущего с просьбой сохранить важные истории города.',role:'Зрители выступают хранителями: выбирают предметы, которые объяснят будущим поколениям жизнь города.',plot:'В каждой точке маршрута открывается новый вопрос. Завершение — коллективное письмо в будущее, составленное из найденных смыслов.',source:'https://mk.lpr-reg.ru/14169-v-alchevskom-muzee-posle-remonta-otkrylis-dva-obnovlennyh-jekspozicionnyh-zala.html'},
-    {symbol:'✦',place:'СЛАВЯНОСЕРБСК · БИБЛИОТЕКА',title:'«Книга выбирает тебя»',format:'Спектакль для семьи · 30 минут',description:'Герои разных вымышленных книг спорят, чья история должна быть рассказана сегодня.',role:'Каждый зритель берёт закладку с заданием и помогает героям найти общую сюжетную нить.',plot:'Чтение вслух, тихие аудиосцены и выбор пути объединяются в живой финал, который зависит от решений участников.',source:'https://mk.lpr-reg.ru/14168-v-slavjanoserbske-otkrylas-pervaja-modelnaja-biblioteka.html'},
-    {symbol:'◎',place:'БЕЛОВОДСК · КРАЕВЕДЧЕСКИЙ МУЗЕЙ',title:'«Музей после звонка»',format:'Камерный спектакль · 35 минут',description:'Вымышленный музейный смотритель оставляет гостям цепочку вопросов о знакомых вещах.',role:'Зритель становится исследователем и раскрывает значение предмета через детали и версии других участников.',plot:'Вместо готовых ответов — диалоги с актёром, звук и проекции. Развязка показывает, как по-разному можно смотреть на один и тот же предмет.',source:'https://mk.lpr-reg.ru/13217-v-belovodske-posle-kapitalnogo-remonta-torzhestvenno-otkrylsja-obnovlennyj-kraevedcheskij-muzej.html'}
+  const ideas = window.STUDIO_SCENARIOS;
+  const zones = [
+    {name:'Вход в историю',icon:'01',description:'Световая карта приглашает выбрать направление: люди, книги или предметы. Это начало маршрута, который вы собираете сами.',action:'Назовите тему, с которой хотите познакомиться.'},
+    {name:'Ожившая история',icon:'02',description:'Воображаемая сцена оживает с помощью проекции и звука. Выбор зрителя определяет, чей голос прозвучит следующим.',action:'Решите, за каким героем отправиться.'},
+    {name:'Голоса поколений',icon:'03',description:'Звуковая стена соединяет интервью, письма и воспоминания — после проверки источников и получения согласия на публикацию.',action:'Выберите голос, который хотите услышать.'},
+    {name:'Культурный код',icon:'04',description:'Литература, музыка и народные традиции становятся развилками персонального маршрута.',action:'Найдите символ, который хочется исследовать.'},
+    {name:'Создай сам',icon:'05',description:'В творческой лаборатории предмет превращается в короткую сцену, письмо или звуковую открытку.',action:'Перейдите к конструктору своей истории.'},
+    {name:'Будущее культуры',icon:'06',description:'Финальная зона собирает ваш выбор в идею новой постановки, которую можно сохранить и предложить студии.',action:'Сохраните эскиз и расскажите о нём другим.'}
   ];
   const content = document.getElementById('playbill-content');
   const note = document.getElementById('playbill-note');
   const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const upcomingShows = () => shows.filter(show => show.date >= new Date().toLocaleDateString('sv-SE'));
+  let activeTab = 'real';
   function render(tab) {
+    activeTab = tab;
     document.querySelector('[data-tab="real"] span').textContent = String(upcomingShows().length).padStart(2, '0');
     document.querySelectorAll('[data-tab]').forEach(button => {const selected = button.dataset.tab === tab; button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected));});
+    document.getElementById('event-controls').hidden = tab !== 'real';
     if (tab === 'real') {
-      const upcoming = upcomingShows();
+      const day = document.getElementById('show-date').value;
+      const upcoming = upcomingShows().filter(show => !day || show.date === day);
       content.innerHTML = upcoming.length ? `<div class="show-grid">${upcoming.map(show => `<article class="show-card"><div class="show-visual"><img src="https://mk.lpr-reg.ru/uploads/posts/2026-09/${escapeHTML(show.image)}" alt="" loading="lazy"><span class="show-date">${show.day}<small>${show.month}</small></span></div><div class="show-info"><span class="show-meta">ПОДТВЕРЖДЁННЫЙ АНОНС · ${show.time}</span><h3>${escapeHTML(show.title)}</h3><p>${escapeHTML(show.description)}</p><span class="show-location">◎ Луганский республиканский академический театр кукол · Луганск</span><a href="${announcement}" target="_blank" rel="noopener noreferrer">Анонс на сайте министерства ↗</a></div></article>`).join('')}</div>` : '<div class="empty-show">На ближайшие даты подтверждённых показов из этой публикации нет. Проверьте новую афишу на сайте театра или министерства.</div>';
       note.innerHTML = `Источник: <a href="${announcement}" target="_blank" rel="noopener noreferrer">афиша театра кукол на сайте Минкультуры ЛНР ↗</a>, опубликована 24.09.2026. Спектакли театра кукол не обозначены источником как иммерсивные. Перед посещением уточните репертуар и наличие билетов у театра.`;
     } else {
-      content.innerHTML = `<div class="show-grid idea-grid">${ideas.map(idea => `<article class="show-card idea-card"><div class="show-visual idea-visual" aria-hidden="true">${idea.symbol}</div><div class="show-info"><span class="show-meta">КОНЦЕПЦИЯ · ДАТА НЕ НАЗНАЧЕНА</span><h3>${escapeHTML(idea.title)}</h3><p>${escapeHTML(idea.description)}</p><span class="idea-format">${escapeHTML(idea.format)}</span><details class="idea-details"><summary>Как это происходит</summary><p><strong>Роль зрителя.</strong> ${escapeHTML(idea.role)}</p><p><strong>Ход истории.</strong> ${escapeHTML(idea.plot)}</p></details><span class="show-location">◎ ${escapeHTML(idea.place)}</span><a href="${idea.source}" target="_blank" rel="noopener noreferrer">Об учреждении на сайте министерства ↗</a></div></article>`).join('')}</div>`;
+      content.innerHTML = `<div class="show-grid idea-grid">${ideas.map(idea => `<article class="show-card idea-card"><div class="show-visual idea-visual" aria-hidden="true">${idea.symbol}</div><div class="show-info"><span class="show-meta">КОНЦЕПЦИЯ · ДАТА НЕ НАЗНАЧЕНА</span><h3>${escapeHTML(idea.title)}</h3><p>${escapeHTML(idea.description)}</p><span class="idea-format">${escapeHTML(idea.format)} · ${escapeHTML(idea.age)}</span><details class="idea-details"><summary>Как это происходит</summary><p><strong>Роль зрителя.</strong> ${escapeHTML(idea.role)}</p><p><strong>Ход истории.</strong> ${escapeHTML(idea.plot)}</p></details><span class="show-location">◎ ${escapeHTML(idea.place)}</span><a href="scenario.html?id=${encodeURIComponent(idea.id)}">Подробнее о сценарии ↗</a></div></article>`).join('')}</div>`;
       note.innerHTML = 'Это сценарные предложения студии, а не анонсы мероприятий. Длительность указана ориентировочно; сотрудничество с учреждениями и даты показов не подтверждены. <a href="#suggest-scenario">Предложить свой сценарий ↗</a>';
     }
   }
   document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => render(button.dataset.tab)));
+  document.getElementById('show-date').addEventListener('change', () => render(activeTab));
+  document.getElementById('clear-date').addEventListener('click', () => {document.getElementById('show-date').value = ''; render('real');});
+  const journeyNav = document.getElementById('journey-nav');
+  const journeyStage = document.getElementById('journey-stage');
+  journeyNav.innerHTML = zones.map((zone,index) => `<button type="button" data-zone="${index}" aria-pressed="false"><span>${zone.icon}</span>${zone.name}<b>↗</b></button>`).join('');
+  function showZone(index) {
+    const zone = zones[index];
+    journeyNav.querySelectorAll('button').forEach((button,i) => button.setAttribute('aria-pressed', String(index === i)));
+    journeyStage.innerHTML = `<div class="stage-ring" aria-hidden="true">${zone.icon}</div><div class="stage-copy"><small>ЗОНА ${zone.icon} / 06 · ЦИФРОВОЙ ПРОТОТИП</small><h3>${zone.name}</h3><p>${zone.description}</p><strong>${zone.action}</strong><a ${index < 4 ? 'data-open-ideas' : ''} href="${index === 4 ? '#lab' : index === 5 ? '#suggest-scenario' : '#playbill'}">${index === 4 ? 'Создать свою историю' : index === 5 ? 'Предложить идею' : 'Посмотреть сценарии'} ↗</a></div>`;
+  }
+  journeyNav.addEventListener('click', event => {const button = event.target.closest('[data-zone]'); if (button) showZone(Number(button.dataset.zone));});
+  journeyStage.addEventListener('click', event => {if (event.target.closest('[data-open-ideas]')) render('ideas');});
+  showZone(0);
+  document.getElementById('story-lab').addEventListener('submit', event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const place = form.elements.place.value, role = form.elements.role.value, object = form.elements.object.value.trim();
+    const draft = `Эскиз истории\nМесто: ${place}\nРоль зрителя: ${role}\nГлавный образ: ${object}\nСюжет: В ${place.toLocaleLowerCase('ru')} ${role.toLocaleLowerCase('ru')} находит ${object} и ищет связанную с ним историю. Какой выбор изменит финал?`;
+    const result = document.getElementById('lab-result');
+    result.replaceChildren();
+    const label = document.createElement('span'); label.className = 'section-label'; label.textContent = 'ВАШ ЦИФРОВОЙ ЭСКИЗ';
+    const text = document.createElement('p'); text.textContent = draft;
+    const download = document.createElement('button'); download.type = 'button'; download.className = 'btn btn-coral'; download.textContent = 'Скачать эскиз ↓';
+    download.addEventListener('click', () => {const url = URL.createObjectURL(new Blob(['\ufeff'+draft],{type:'text/plain;charset=utf-8'})); const a = document.createElement('a'); a.href=url; a.download='moya-istoriya.txt'; a.click(); setTimeout(() => URL.revokeObjectURL(url),1000);});
+    const propose = document.createElement('a'); propose.className='inline-link'; propose.href='#suggest-scenario'; propose.textContent='Предложить эту идею ↗';
+    propose.addEventListener('click', () => {document.querySelector('#suggest-scenario [name=story]').value = draft;});
+    result.append(label,text,download,propose);
+  });
+  const fromMap = new URLSearchParams(location.search).get('place');
+  if (fromMap) document.querySelector('#suggest-scenario [name=venue]').value = fromMap.slice(0,120);
   const menu = document.querySelector('.menu-button');
   const nav = document.getElementById('navigation');
   menu.addEventListener('click', () => {const opened = nav.classList.toggle('open');menu.setAttribute('aria-expanded', String(opened));menu.setAttribute('aria-label', opened ? 'Закрыть меню' : 'Открыть меню');});
@@ -41,8 +76,8 @@
     const isScenario = form.dataset.issue === 'scenario';
     const title = form.elements.title.value.trim();
     const body = isScenario
-      ? `Предложение сценария для «Внутри истории»\n\nПлощадка: ${form.elements.venue.value.trim()}\n\nСюжет и участие зрителя:\n${form.elements.story.value.trim()}`
-      : `Отзыв о сайте «Внутри истории»\n\n${form.elements.message.value.trim()}`;
+      ? `Предложение сценария для «Внутри истории»\n\nПлощадка: ${form.elements.venue.value.trim()}\nТема: ${form.elements.topic.value.trim()}\nАудитория: ${form.elements.audience.value}\nФормат: ${form.elements.format.value}\n\nСюжет и участие зрителя:\n${form.elements.story.value.trim()}\n\nПочему это важно:\n${form.elements.why.value.trim()}`
+      : `Обращение: ${form.elements.category.value}\n\n${form.elements.message.value.trim()}`;
     const url = new URL('https://github.com/alekseevasvetlana8-dev/vnutri-istorii-lnr/issues/new');
     url.searchParams.set('title', `${isScenario ? 'Сценарий' : 'Отзыв'}: ${title}`);
     url.searchParams.set('body', body);
