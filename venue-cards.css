@@ -1,0 +1,27 @@
+.venue-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.venue-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.venue-body p {
+  min-height: 0;
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+.venue-body a {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+@media (max-width: 760px) {
+  .venue-card {
+    display: grid;
+  }
+}
