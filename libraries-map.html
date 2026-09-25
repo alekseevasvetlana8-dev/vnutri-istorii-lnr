@@ -629,7 +629,7 @@
     </div>
     <div class="hero-stats">
       <div class="stat"><strong id="opened-stat">15</strong><span>открыто</span></div>
-      <div class="stat"><strong id="progress-stat">2</strong><span>ожидаются в 2026</span></div>
+      <div class="stat"><strong id="progress-stat">1</strong><span>в процессе обновления</span></div>
       <div class="stat"><strong id="planned-stat">4</strong><span>отбор 2027</span></div>
     </div>
   </section>
@@ -649,8 +649,8 @@
         <div class="filters" role="group" aria-label="Фильтр по статусу">
           <button class="filter active" data-filter="all">Все</button>
           <button class="filter" data-filter="open">Открытые</button>
-          <button class="filter" data-filter="progress">Ожидаются в 2026</button>
-          <button class="filter" data-filter="planned">Откроются в 2027</button>
+          <button class="filter" data-filter="progress">Обновляются</button>
+          <button class="filter" data-filter="planned">Отбор на 2027</button>
         </div>
         <div class="discovery-tools" role="group" aria-label="Исследовать карту">
           <button class="discovery-button" id="favorites-filter" type="button" aria-pressed="false">☆ Избранное (0)</button>
@@ -670,8 +670,8 @@
         <strong>Легенда карты</strong>
         <div id="legend-items">
           <div class="legend-item"><span class="legend-dot"></span><span>Открыта</span></div>
-          <div class="legend-item"><span class="legend-dot progress"></span><span>Ожидается в 2026</span></div>
-          <div class="legend-item"><span class="legend-dot planned"></span><span>Откроется в 2027</span></div>
+          <div class="legend-item"><span class="legend-dot progress"></span><span>Обновляется по публикации</span></div>
+          <div class="legend-item"><span class="legend-dot planned"></span><span>Отобрана на обновление в 2027</span></div>
         </div>
       </div>
       <div class="map-note">Перетаскивайте карту и изменяйте масштаб колёсиком, жестами или кнопками +/−. Метки установлены по населённым пунктам.</div>
@@ -797,8 +797,8 @@
       const embeddedMap = new URLSearchParams(location.search).get("embed") === "map" && window.parent !== window;
       if (embeddedMap) document.body.classList.add("embedded-map");
       const base = "https://mk.lpr-reg.ru";
-      const common2027 = `${base}/uploads/posts/2026-09/1789731419_img_20260918_142919.jpg`;
       const placeholderPhoto = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#174c40'/><circle cx='980' cy='100' r='360' fill='#a8d5ba' opacity='.35'/><text x='80' y='620' fill='#fffdf8' font-family='Arial' font-size='160'>2026</text></svg>")}`;
+      const plannedPlaceholder = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#174c40'/><circle cx='980' cy='100' r='360' fill='#a8d5ba' opacity='.35'/><text x='80' y='620' fill='#fffdf8' font-family='Arial' font-size='160'>2027</text></svg>")}`;
       const awardPlaceholder = `data:image/svg+xml,${encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'><rect width='1200' height='800' fill='#174c40'/><circle cx='960' cy='120' r='360' fill='#a8d5ba' opacity='.3'/><text x='80' y='480' fill='#fffdf8' font-family='Arial' font-size='85'>ЛУЧШИЕ СЕЛЬСКИЕ</text><text x='80' y='590' fill='#fffdf8' font-family='Arial' font-size='85'>УЧРЕЖДЕНИЯ</text></svg>")}`;
       const awardArticle = `${base}/13917-objavleny-pobediteli-konkursa-na-denezhnoe-pooschrenie-luchshih-selskih-uchrezhdenij-kultury-lnr-v-2027-godu.html`;
       const cultureSelectionArticle = `${base}/12315-ministerstvo-kultury-lnr-podvelo-itogi-otbora-na-predostavlenie-subsidij-v-ramkah-gosprogrammy-razvitie-kultury.html`;
@@ -954,35 +954,28 @@
           photos: ["1786454449_img-20260811-145153.jpg", "1786454422_img-20260811-145150.jpg", "1786454397_img-20260811-145155.jpg", "1786454432_img-20260811-145144.jpg"].map(x => `${base}/uploads/posts/2026-08/${x}`)
         },
         {
-          id: "severodonetsk-children", city: "Северодонецк", coords: [48.9482, 38.4933], status: "progress", year: 2026,
-          name: "Северодонецкая библиотека для детей", concept: "Будущее модельное пространство для детей",
-          description: "Детскую библиотеку планируется открыть в Северодонецке в 2026 году в статусе модельной. Подробности проекта и официальные фотографии в открытом доступе пока не опубликованы.",
-          features: ["Открытие в 2026 году", "Детская библиотека", "Модельное пространство"],
-          article: "", photos: [placeholderPhoto], photoAvailable: false
-        },
-        {
           id: "rovenki-2027", city: "Ровеньки", coords: [48.0734, 39.3421], status: "planned", year: 2027,
           name: "Детская библиотека-филиал", concept: "Победитель федерального отбора",
-          description: "В 2027 году библиотеку ждут обновление интерьеров и оборудования, пополнение книжного фонда и создание комфортных условий для читателей.",
-          features: ["Проект 2027", "Детская библиотека", "Новые фонды"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+          description: "Библиотека вошла в число победителей отбора на обновление в 2027 году. Запланированы обновление интерьеров и оборудования и пополнение книжного фонда.",
+          features: ["Проект 2027", "Детская библиотека", "Новые фонды"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [plannedPlaceholder], photoAvailable: false
         },
         {
           id: "alchevsk-2027", city: "Алчевск", coords: [48.4674, 38.7982], status: "planned", year: 2027,
           name: "Библиотека-филиал № 3", concept: "Победитель федерального отбора",
           description: "Филиал Центральной библиотеки Алчевска вошёл в число победителей отбора на создание модельных библиотек в 2027 году.",
-          features: ["Проект 2027", "Новые технологии", "Комфортная среда"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+          features: ["Проект 2027", "Новые технологии", "Комфортная среда"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [plannedPlaceholder], photoAvailable: false
         },
         {
           id: "perevalsk-2027", city: "Перевальск", coords: [48.4319, 38.8525], status: "planned", year: 2027,
           name: "Детская библиотека-филиал № 22", concept: "Победитель федерального отбора",
-          description: "Детская библиотека Перевальска получит федеральную поддержку для масштабного обновления пространства, фонда и оборудования.",
-          features: ["Проект 2027", "Детская библиотека", "Обновление пространства"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+          description: "Детская библиотека Перевальска вошла в число победителей отбора на федеральную поддержку для обновления пространства, фонда и оборудования в 2027 году.",
+          features: ["Проект 2027", "Детская библиотека", "Обновление пространства"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [plannedPlaceholder], photoAvailable: false
         },
         {
           id: "krasny-luch-2027", city: "Красный Луч", coords: [48.1393, 38.9375], status: "planned", year: 2027,
           name: "Библиотека-филиал № 3", concept: "Победитель федерального отбора",
-          description: "Филиал Краснолучской центральной городской библиотеки имени Н. К. Крупской станет модельным пространством в 2027 году.",
-          features: ["Проект 2027", "Новые издания", "Современное оборудование"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [common2027]
+          description: "Филиал Краснолучской центральной городской библиотеки имени Н. К. Крупской вошёл в число победителей отбора на создание модельных библиотек в 2027 году.",
+          features: ["Проект 2027", "Новые издания", "Современное оборудование"], article: `${base}/14171-respublika-chtenija-biblioteki-lnr-stali-pobediteljami-federalnogo-otbora.html`, photos: [plannedPlaceholder], photoAvailable: false
         }
       ];
 
@@ -1078,8 +1071,8 @@
           id: "belovodsk-museum", city: "Беловодск", coords: [49.2090, 39.5880], status: "museum-both", year: 2026,
           upgradeTypes: ["equipped", "repaired"], project: "Национальные проекты «Культура» и «Семья»",
           name: "Беловодский краеведческий музей", concept: "Комплексное обновление музея",
-          description: "Ремонт, начатый в 2024 году, полностью обновил помещения и коммуникации музея. В 2025 году учреждение получило современные экспозиционные витрины; обновлённый музей открылся 5 марта 2026 года.",
-          features: ["Капитальный ремонт", "Новые коммуникации", "Экспозиционные витрины", "Два нацпроекта"],
+          description: "Ремонт, начатый в 2024 году, полностью обновил помещения и коммуникации музея. В 2025 году учреждение получило экспозиционные витрины, затем — интерактивные доски и экраны; музей открылся после ремонта 5 марта 2026 года.",
+          features: ["Капитальный ремонт", "Новые коммуникации", "Экспозиционные витрины", "Интерактивные доски и экраны"],
           article: museumArticles.belovodsk,
           photos: ["1772718516_photo_2026-03-05_16-46-32.jpg", "1772718427_photo_2026-03-05_16-46-27.jpg", "1772718461_photo_2026-03-05_16-46-21.jpg"].map(x => `${base}/uploads/posts/2026-03/${x}`)
         }
@@ -1120,14 +1113,21 @@
 
       const statuses = {
         open: { label: "Открыта", card: "", marker: "" },
-        progress: { label: "Ожидается в 2026", card: "progress", marker: "progress" },
-        planned: { label: "Открытие в 2027", card: "planned", marker: "planned" },
+        progress: { label: "Обновляется по публикации", card: "progress", marker: "progress" },
+        planned: { label: "Отобрана на обновление в 2027", card: "planned", marker: "planned" },
         renovated: { label: "Ремонт завершён", card: "renovated", marker: "renovated" },
         equipped: { label: "Музей оснащён", card: "equipped", marker: "equipped" },
         repaired: { label: "Музей отремонтирован", card: "repaired", marker: "repaired" },
         "museum-both": { label: "Оснащён и отремонтирован", card: "museum-both", marker: "museum-both" },
         winner: { label: "Победитель отбора на 2027 год", card: "winner", marker: "winner" },
         active: { label: "Действует", card: "active", marker: "active" }
+      };
+      // Дата относится к публикации, а не к последней проверке режима работы учреждения.
+      const sourceDates = {
+        slavyanoserbsk: "2026-09-16", "alchevsk-museum": "2026-09-17",
+        "belovodsk-museum": "2026-03-05", "rovenki-2027": "2026-09-18",
+        "alchevsk-2027": "2026-09-18", "perevalsk-2027": "2026-09-18",
+        "krasny-luch-2027": "2026-09-18"
       };
       const systemCategories = [
         { id: "library", label: "Библиотеки", singular: "Библиотека", system: true },
@@ -1151,11 +1151,10 @@
         markovka: "Открыта 17 декабря 2025 года",
         "stakhanov-south": "Открыта 10 сентября 2026 года",
         gorskoye: "Обновление планируется завершить в 2026 году",
-        "severodonetsk-children": "Открытие планируется в 2026 году",
-        "rovenki-2027": "Открытие планируется в 2027 году",
-        "alchevsk-2027": "Открытие планируется в 2027 году",
-        "perevalsk-2027": "Открытие планируется в 2027 году",
-        "krasny-luch-2027": "Открытие планируется в 2027 году",
+        "rovenki-2027": "Отобрана на обновление в 2027 году",
+        "alchevsk-2027": "Отобрана на обновление в 2027 году",
+        "perevalsk-2027": "Отобрана на обновление в 2027 году",
+        "krasny-luch-2027": "Отобрана на обновление в 2027 году",
         "kalmykovsky-sdk": "Ремонт завершён к 18 августа 2026 года",
         "morozovsky-sdk": "Ремонт завершён к 18 августа 2026 года",
         "nikolsky-sdk": "Ремонт завершён к 18 августа 2026 года",
@@ -1458,10 +1457,10 @@
           document.getElementById("hero-title").textContent = "Модельные библиотеки ЛНР";
           document.getElementById("hero-intro").textContent = "Современные пространства для чтения, творчества и общения. Выберите точку на карте, чтобы посмотреть официальные фотографии и совершить короткую видеоэкскурсию.";
           search.placeholder = "Найти город или библиотеку";
-          filters.innerHTML = `<button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="open">Открытые</button><button class="filter" data-filter="progress">Ожидаются в 2026</button><button class="filter" data-filter="planned">Откроются в 2027</button>`;
-          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot"></span><span>Открыта</span></div><div class="legend-item"><span class="legend-dot progress"></span><span>Ожидается в 2026</span></div><div class="legend-item"><span class="legend-dot planned"></span><span>Откроется в 2027</span></div>`;
+          filters.innerHTML = `<button class="filter active" data-filter="all">Все</button><button class="filter" data-filter="open">Открытые</button><button class="filter" data-filter="progress">Обновляются</button><button class="filter" data-filter="planned">Отбор на 2027</button>`;
+          document.getElementById("legend-items").innerHTML = `<div class="legend-item"><span class="legend-dot"></span><span>Открыта</span></div><div class="legend-item"><span class="legend-dot progress"></span><span>Обновляется по публикации</span></div><div class="legend-item"><span class="legend-dot planned"></span><span>Отобрана на обновление в 2027</span></div>`;
           const counts = libraries.reduce((acc, item) => ({ ...acc, [item.status]: (acc[item.status] || 0) + 1 }), {});
-          [[counts.open || 0, "открыто"], [counts.progress || 0, "ожидаются в 2026"], [counts.planned || 0, "отбор 2027"]].forEach(([value, label], index) => {
+          [[counts.open || 0, "открыто"], [counts.progress || 0, "в процессе обновления"], [counts.planned || 0, "отбор 2027"]].forEach(([value, label], index) => {
             statCards[index].querySelector("strong").textContent = value;
             statCards[index].querySelector("span").textContent = label;
           });
@@ -1544,7 +1543,7 @@
         const articles = library.articles || (library.article ? [{ label: "Читать публикацию", url: library.article }] : []);
         document.getElementById("article-links").innerHTML = articles.filter(article => safeUrl(article.url)).map(article => `<a class="source-button" href="${escapeHtml(safeUrl(article.url))}" target="_blank" rel="noopener"><span>${escapeHtml(article.label)}</span><span>↗</span></a>`).join("");
         const sourceNote = document.getElementById("source-note");
-        sourceNote.textContent = library.photoAvailable === false ? "Сведения подтверждены публикацией по ссылке. Фотографии учреждения не опубликованы; на месте снимка показана иллюстрация." : "Фото и сведения взяты из официальных публикаций, указанных в карточке. Видеоэкскурсия собрана из кадров фотогалереи источника.";
+        sourceNote.textContent = library.photoAvailable === false ? (library.article || library.articles?.length ? "Сведения — из публикации по ссылке. Фотографии учреждения не опубликованы; показана иллюстрация." : "Официальная публикация об учреждении и его фотографии пока не добавлены; показана иллюстрация.") : "Фото и сведения взяты из публикаций, указанных в карточке. Видеоэкскурсия собрана из кадров фотогалереи источника.";
         sourceNote.style.display = articles.length ? "block" : "none";
         document.getElementById("media-title").textContent = library.concept;
         document.getElementById("thumbnails").innerHTML = library.photoAvailable === false ? "" : library.photos.map((photo, index) => `<button class="thumbnail ${index === 0 ? "active" : ""}" data-index="${index}"><img src="${escapeHtml(safeUrl(photo) || placeholderPhoto)}" alt="Фото ${index + 1}" loading="lazy"></button>`).join("");
@@ -1569,7 +1568,7 @@
         photo.style.opacity = "0";
         setTimeout(() => {
           photo.src = safeUrl(activeLibrary.photos[photoIndex]) || placeholderPhoto;
-          photo.alt = activeLibrary.photoAvailable === false ? "Иллюстрация: лучшие сельские учреждения" : `${activeLibrary.name}, фото ${photoIndex + 1}`;
+          photo.alt = activeLibrary.photoAvailable === false ? "Иллюстрация вместо фотографии учреждения" : `${activeLibrary.name}, фото ${photoIndex + 1}`;
           photo.style.opacity = "1";
         }, 130);
         document.getElementById("media-counter").textContent = activeLibrary.photoAvailable === false ? "Фотографии не опубликованы" : `Кадр ${photoIndex + 1} из ${activeLibrary.photos.length}`;
@@ -2078,7 +2077,7 @@
           categories: allCategories().map(({ id, label, singular }) => ({ id, label, singular })),
           places: institutions.map(item => ({
             id: item.id, type: item.type, name: item.name, city: item.city,
-            coords: item.coords, status: item.status, year: item.year,
+            coords: item.coords, status: item.status, year: item.year, sourceDate: sourceDates[item.id] || null,
             concept: item.concept, description: item.description,
             features: item.features, photos: item.photoAvailable === false ? [] : item.photos,
             article: item.article || item.articles?.[0]?.url || "",

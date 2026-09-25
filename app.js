@@ -3,7 +3,7 @@
 (() => {
   'use strict';
   const source = 'https://mk.lpr-reg.ru';
-  // Проверенные публикации Министерства культуры ЛНР, дата проверки — сентябрь 2026.
+  // Проверенные публикации Министерства культуры ЛНР, дата проверки — 25 сентября 2026.
   const editorialEvents = [
     {id:'costumes',title:'«Нарядное путешествие: четыре региона, одна история»',kind:'Выставка',category:'exhibition',city:'Луганск',venue:'Луганский республиканский центр народного творчества, ул. Ленина, 36',start:'2026-09-29',end:'2026-09-29',time:'13:30',badge:'29 сентября · 13:30',description:'Открытие выставки 30 кукол в традиционных костюмах четырёх регионов. Срок работы выставки в публикации не указан.',image:`${source}/uploads/posts/2026-09/1790083560_afisha-kukly-sodruzhestva.jpg`,url:`${source}/14184-v-luganske-otkroetsja-vystavka-narjadnoe-puteshestvie-chetyre-regiona-odna-istorija.html`,age:null,free:null},
     {id:'shmorel',title:'«Александр Шморель — студент, патриот, антифашист, святой»',kind:'Выставка',category:'exhibition',city:'Краснодон',venue:'Музей «Молодая гвардия»',start:'2026-09-22',end:'2026-11-15',time:null,badge:'До 15 ноября',description:'История подпольной группы «Белая роза» и молодёжного Сопротивления. По сообщению министерства, вход свободный; часы работы уточняйте в музее.',image:`${source}/uploads/posts/2026-09/1790083032_img_20260922_150329.jpg`,url:`${source}/14183-v-muzee-molodaja-gvardija-otkrylas-vystavka-aleksandr-shmorel-student-patriot-antifashist-svjatoj.html`,age:null,free:true},
@@ -75,7 +75,7 @@
       return {id:item.id,type,city:item.city||'Не указан',lat:Number(item.coords[0]),lng:Number(item.coords[1]),name:item.name,
         short:item.concept||categories[type]?.one||'Культурный объект',description:item.description||item.concept||'Описание не добавлено.',
         tags,audience:isChild?['family','children','youth']:['family','youth'],accessible:tags.some(t=>/доступн/i.test(t)),
-        photo,url:item.article||'',updated:null,address:item.address||'',hours:item.hours||'',contacts:item.contacts||'',timing:item.timing||'',status:item.status||''};
+        photo,url:item.article||'',updated:item.sourceDate||null,address:item.address||'',hours:item.hours||'',contacts:item.contacts||'',timing:item.timing||'',status:item.status||''};
     }).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lng));
     places.splice(0,places.length,...incoming);
     $('hero-place-count').textContent=places.length;
@@ -131,7 +131,14 @@
     if(p.address)$('detail-content').querySelector('.detail-address').textContent=`◎ ${p.address}`;
     const details=$('detail-content').querySelector('.detail-section');
     const updatedRow=[...details.querySelectorAll('.detail-row')].find(row=>row.querySelector('span')?.textContent==='Обновлено');
-    if(updatedRow && !p.updated)updatedRow.querySelector('b').textContent='Дата не указана в источнике';
+    if(updatedRow){
+      updatedRow.querySelector('span').textContent='Дата публикации источника';
+      updatedRow.querySelector('b').textContent=p.updated?new Date(p.updated+'T12:00:00').toLocaleDateString('ru-RU'):'Не указана в подборке';
+    }
+    if(p.status){
+      const statusLabels={open:'Модельная библиотека открыта',progress:'Обновление на стадии работ по публикации',planned:'Отобрана на обновление в 2027 году',renovated:'Ремонт завершён по публикации',equipped:'Оснащение по публикации',repaired:'Ремонт по публикации','museum-both':'Оснащение и ремонт по публикации',winner:'Победитель отбора на 2027 год',active:'Действует по публикации'};
+      details.insertAdjacentHTML('beforeend',`<div class="detail-row"><span>Статус по публикации</span><b>${esc(statusLabels[p.status]||p.status)}</b></div>`);
+    }
     if(p.hours)details.insertAdjacentHTML('beforeend',`<div class="detail-row"><span>Режим работы</span><b>${esc(p.hours)}</b></div>`);
     if(p.timing)details.insertAdjacentHTML('beforeend',`<div class="detail-row"><span>Дата / срок</span><b>${esc(p.timing)}</b></div>`);
     if(p.contacts)details.insertAdjacentHTML('beforeend',`<div class="detail-row"><span>Контакты из источника</span><b>${esc(p.contacts)}</b></div>`);
